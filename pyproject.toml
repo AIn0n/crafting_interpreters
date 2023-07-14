@@ -1,0 +1,13 @@
+
+[project]
+name = ""
+version = ""
+description = ""
+authors = [
+    {name = "Szymon Górka", email = "none"},
+]
+dependencies = [
+    "black>=23.7.0",
+]
+requires-python = ">=3.10"
+license = {text = "GPL3"}
