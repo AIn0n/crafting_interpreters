@@ -11,6 +11,23 @@ class Scanner:
         self.current = 0
         self.line = 0
 
+    def string(self):
+        while self.peek() != '"' and not self.is_at_end():
+            if self.peek() == "\n":
+                self.line += 1
+            self.advance()
+
+        if self.is_at_end():
+            error(self.line, "unterminated string")
+            return
+
+        # pick the closing "
+        self.advance()
+
+        # plus minus one below is trimming quote signs
+        # in the future it is the place where we can add unescape \
+        self.add_token(Token_type.STRING, self.src[self.start + 1 : self.current - 1])
+
     def peek(self) -> str:
         if self.is_at_end():
             return "\0"
@@ -83,6 +100,8 @@ class Scanner:
                 pass
             case "\n":
                 self.line += 1
+            case '"':
+                self.string()
             case default:
                 error(self.line, "unexpected character")
 
