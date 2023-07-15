@@ -30,17 +30,11 @@ class Scanner:
 
         self.add_token(type_, text)
 
-    # TODO: refactor this shit to make it more versatile
-    def peek_next(self) -> str:
-        if self.current + 1 >= len(self.src):
-            return "\0"
-        return self.src[self.current + 1]
-
     def number(self):
         while self.peek() in digits:
             self.advance()
 
-        if self.peek() == "." and self.peek_next() in digits:
+        if self.peek() == "." and self.peek(n=1) in digits:
             # consume the dot
             self.advance()
 
@@ -66,10 +60,10 @@ class Scanner:
         # in the future it is the place where we can add unescape \
         self.add_token(Token_type.STRING, self.src[self.start + 1 : self.current - 1])
 
-    def peek(self) -> str:
-        if self.is_at_end():
+    def peek(self, n: int = 0) -> str:
+        if self.is_at_end(n):
             return "\0"
-        return self.src[self.current]
+        return self.src[self.current + n]
 
     def match(self, expected: str) -> bool:
         if self.is_at_end() or self.src[self.current] != expected:
@@ -77,8 +71,8 @@ class Scanner:
         self.current += 1
         return True
 
-    def is_at_end(self) -> bool:
-        return len(self.src) <= self.current
+    def is_at_end(self, n=0) -> bool:
+        return len(self.src) <= self.current + n
 
     def advance(self) -> str:
         char = self.src[self.current]
