@@ -2,6 +2,15 @@ from token import Token
 from tokenTypes import Token_type
 from errors import error
 from string import digits, ascii_letters
+from keywords import keywords
+
+
+def is_alpha(c: str) -> bool:
+    return c in ascii_letters or c == "_"
+
+
+def is_alpha_numeric(c: str) -> bool:
+    return is_alpha(c) or c in digits
 
 
 class Scanner:
@@ -11,6 +20,15 @@ class Scanner:
         self.start = 0
         self.current = 0
         self.line = 0
+
+    def identifier(self):
+        while is_alpha_numeric(self.peek()):
+            self.advance()
+
+        text = self.src[self.start : self.current]
+        type_ = keywords[text] if text in keywords else Token_type.IDENTIFIER
+
+        self.add_token(type_, text)
 
     # TODO: refactor this shit to make it more versatile
     def peek_next(self) -> str:
@@ -29,7 +47,7 @@ class Scanner:
         while self.peek() in digits:
             self.advance()
 
-        self.add_token(Token_type.NUMBER, float(self.src[self.start, self.current]))
+        self.add_token(Token_type.NUMBER, float(self.src[self.start : self.current]))
 
     def string(self):
         while self.peek() != '"' and not self.is_at_end():
@@ -124,6 +142,8 @@ class Scanner:
                 self.string()
             case c if c in digits:
                 self.number()
+            case c if is_alpha(c):
+                self.identifier()
             case default:
                 error(self.line, "unexpected character")
 
@@ -131,3 +151,4 @@ class Scanner:
         while not self.is_at_end():
             self.start = self.current
             self.scan_token()
+        return self.tokens

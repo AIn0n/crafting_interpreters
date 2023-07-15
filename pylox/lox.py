@@ -1,8 +1,10 @@
 import argparse
+from scanner import Scanner
 
 
 def run(src: str) -> None:
-    print(src.split(" "))
+    scanner = Scanner(src)
+    print(scanner.scan_tokens())
 
 
 def run_file(script_path: str):
