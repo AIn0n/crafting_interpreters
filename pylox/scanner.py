@@ -1,6 +1,7 @@
 from token import Token
 from tokenTypes import Token_type
 from errors import error
+from string import digits, ascii_letters
 
 
 class Scanner:
@@ -10,6 +11,25 @@ class Scanner:
         self.start = 0
         self.current = 0
         self.line = 0
+
+    # TODO: refactor this shit to make it more versatile
+    def peek_next(self) -> str:
+        if self.current + 1 >= len(self.src):
+            return "\0"
+        return self.src[self.current + 1]
+
+    def number(self):
+        while self.peek() in digits:
+            self.advance()
+
+        if self.peek() == "." and self.peek_next() in digits:
+            # consume the dot
+            self.advance()
+
+        while self.peek() in digits:
+            self.advance()
+
+        self.add_token(Token_type.NUMBER, float(self.src[self.start, self.current]))
 
     def string(self):
         while self.peek() != '"' and not self.is_at_end():
@@ -102,6 +122,8 @@ class Scanner:
                 self.line += 1
             case '"':
                 self.string()
+            case c if c in digits:
+                self.number()
             case default:
                 error(self.line, "unexpected character")
 
