@@ -16,7 +16,7 @@ def is_alpha_numeric(c: str) -> bool:
 class Scanner:
     def __init__(self, src: str) -> None:
         self.src = src
-        self.tokens = []
+        self.tokens: list[Token] = []
         self.start = 0
         self.current = 0
         self.line = 0
@@ -83,7 +83,7 @@ class Scanner:
         text = self.src[self.start : self.current]
         self.tokens.append(Token(ttype, text, literal, self.line))
 
-    def scan_token(self) -> Token:
+    def scan_token(self) -> None:
         char = self.advance()
         match char:
             case "(":
