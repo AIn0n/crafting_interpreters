@@ -21,6 +21,20 @@ class Scanner:
         self.current = 0
         self.line = 0
 
+    def collect_bracket_comment(self) -> None:
+        while self.peek() != "*" and self.peek(n=1) != "/" and not self.is_at_end():
+            if self.peek() == "\n":
+                self.line += 1
+            self.advance()
+
+        if self.is_at_end():
+            error(self.line, "unterminated comment")
+            return
+
+        # pick closing bracket */
+        self.advance()
+        self.advance()
+
     def identifier(self):
         while is_alpha_numeric(self.peek()):
             self.advance()
@@ -126,6 +140,8 @@ class Scanner:
                 if self.match("/"):
                     while self.peek() != "\n" and not self.is_at_end():
                         self.advance()
+                elif self.match("*"):
+                    self.collect_bracket_comment()
                 else:
                     self.add_token(Token_type.SLASH)
             case "\r" | " " | "\t":
