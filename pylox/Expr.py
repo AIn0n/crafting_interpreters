@@ -5,20 +5,16 @@ class Expr:
 
 
 class Visitor:
-    @staticmethod
-    def visitBinary(cls, expr):
+    def visitBinary(self, expr):
         pass
 
-    @staticmethod
-    def visitGrouping(cls, expr):
+    def visitGrouping(self, expr):
         pass
 
-    @staticmethod
-    def visitLiteral(cls, expr):
+    def visitLiteral(self, expr):
         pass
 
-    @staticmethod
-    def visitUnary(cls, expr):
+    def visitUnary(self, expr):
         pass
 
 

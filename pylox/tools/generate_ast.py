@@ -5,8 +5,7 @@ def define_visitor(file, base_name: str, types: list[str]) -> None:
     print(f"class Visitor:", file=file)
     for type_ in types:
         type_name, _ = type_.split(":")
-        print(f"  @staticmethod", file=file)
-        print(f"  def visit{type_name}(cls, {base_name.lower()}): pass", file=file)
+        print(f"  def visit{type_name}(self, {base_name.lower()}): pass", file=file)
 
 
 def define_type(file, base_name: str, class_name: str, fields: str) -> None:
