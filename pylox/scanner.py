@@ -17,6 +17,7 @@ class Scanner:
     def __init__(self, src: str) -> None:
         self.src = src
         self.tokens: list[Token] = []
+        self.had_error = False
         self.start = 0
         self.current = 0
         self.line = 0
@@ -51,6 +52,7 @@ class Scanner:
 
         if self.is_at_end():
             error(self.line, "unterminated string")
+            self.had_error = True
             return
 
         # pick the closing "
@@ -140,9 +142,11 @@ class Scanner:
                 self.identifier()
             case default:
                 error(self.line, "unexpected character")
+                self.had_error = True
 
     def scan_tokens(self) -> list[Token]:
         while not self.is_at_end():
             self.start = self.current
             self.scan_token()
+        self.tokens.append(Token(Token_type.EOF, "", None, self.line))
         return self.tokens

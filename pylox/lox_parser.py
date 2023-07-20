@@ -2,12 +2,18 @@ from token import Token
 from Expr import *
 from tokenTypes import Token_type
 from typing import Optional
+from errors import report
+
+
+class Parser_error(RuntimeError):
+    pass
 
 
 class Parser:
     def __init__(self, tokens: list[Token]) -> None:
         self.tokens = tokens
         self.current = 0
+        self.had_error = False
 
     def peek(self) -> Token:
         return self.tokens[self.current]
@@ -102,11 +108,52 @@ class Parser:
             return Literal(None)
 
         if self.match(Token_type.NUMBER, Token_type.STRING):
-            return Expr(self.previous().literal)
+            return Literal(self.previous().literal)
 
         if self.match(Token_type.LEFT_PAREN):
             expr = self.expression()
             self.consume(Token_type.RIGHT_PAREN, "Expect ')' after expression.")
             return Grouping(expr)
-        
-        return None
+
+        raise self.error(self.peek(), "Expect expression.")
+
+    def consume(self, type_: Token_type, msg: str) -> Token:
+        if self.check(type_):
+            return self.advance()
+        raise self.error(self.peek(), msg)
+
+    def error(self, token: Token, msg: str):
+        if token.ttype == Token_type.EOF:
+            report(token.line, " at end", msg)
+        else:
+            report(token.line, f" at '{token.lexeme}'", msg)
+        self.had_error = True
+        return Parser_error()
+
+    def synchronize(self):
+        self.advance()
+
+        while not self.isAtEnd():
+            if self.previous().ttype == Token_type.SEMICOLON:
+                return
+
+            match self.peek().ttype:
+                case (
+                    Token_type.CLASS
+                    | Token_type.FUN
+                    | Token_type.VAR
+                    | Token_type.FOR
+                    | Token_type.IF
+                    | Token_type.WHILE
+                    | Token_type.PRINT
+                    | Token_type.RETURN
+                ):
+                    return
+
+            self.advance()
+
+    def parse(self):
+        try:
+            return self.expression()
+        except Parser_error:
+            return None

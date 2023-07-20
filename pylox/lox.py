@@ -1,10 +1,22 @@
 import argparse
 from scanner import Scanner
+from lox_parser import Parser
+from ast_printer import Ast_printer
 
 
 def run(src: str) -> None:
     scanner = Scanner(src)
-    print(scanner.scan_tokens())
+    tokens = scanner.scan_tokens()
+    if scanner.had_error:
+        return
+
+    parser = Parser(tokens)
+    expression = parser.parse()
+
+    if parser.had_error:
+        return
+
+    print(Ast_printer().print(expression))
 
 
 def run_file(script_path: str):
