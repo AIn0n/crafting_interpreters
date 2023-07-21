@@ -1,7 +1,7 @@
 from token import Token
 from Expr import *
 from tokenTypes import Token_type
-from typing import Optional
+from typing import Callable, Sequence
 from errors import report
 
 
@@ -45,51 +45,40 @@ class Parser:
     def expression(self) -> Expr:
         return self.equality()
 
-    def equality(self) -> Expr:
-        expr = self.comparison()
-
+    def collect_right_recursion(self, func: Callable, types: Sequence) -> Expr:
+        expr = func()
         # as long as matched thing is comparison operator
-        while self.match(Token_type.BANG_EQUAL, Token_type.EQUAL_EQUAL):
+        while self.match(*types):
             operator = self.previous()
-            right = self.comparison()
+            right = func()
             expr = Binary(expr, operator, right)
-
         return expr
+
+    def equality(self) -> Expr:
+        return self.collect_right_recursion(
+            self.comparison, [Token_type.BANG_EQUAL, Token_type.EQUAL_EQUAL]
+        )
 
     def comparison(self) -> Expr:
-        expr = self.term()
-
-        while self.match(
-            Token_type.GREATER,
-            Token_type.GREATER_EQUAL,
-            Token_type.LESS,
-            Token_type.LESS_EQUAL,
-        ):
-            operator = self.previous()
-            right = self.term()
-            expr = Binary(expr, operator, right)
-
-        return expr
+        return self.collect_right_recursion(
+            self.term,
+            [
+                Token_type.GREATER,
+                Token_type.GREATER_EQUAL,
+                Token_type.LESS,
+                Token_type.LESS_EQUAL,
+            ],
+        )
 
     def term(self) -> Expr:
-        expr = self.factor()
-
-        while self.match(Token_type.MINUS, Token_type.PLUS):
-            operator = self.previous()
-            right = self.factor()
-            expr = Binary(expr, operator, right)
-
-        return expr
+        return self.collect_right_recursion(
+            self.factor, [Token_type.MINUS, Token_type.PLUS]
+        )
 
     def factor(self) -> Expr:
-        expr = self.unary()
-
-        while self.match(Token_type.SLASH, Token_type.STAR):
-            operator = self.previous()
-            right = self.factor()
-            expr = Binary(expr, operator, right)
-
-        return expr
+        return self.collect_right_recursion(
+            self.unary, [Token_type.SLASH, Token_type.STAR]
+        )
 
     def unary(self) -> Expr:
         if self.match(Token_type.BANG, Token_type.MINUS):
