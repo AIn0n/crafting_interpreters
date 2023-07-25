@@ -23,17 +23,17 @@ class Interpreter(Visitor):
         try:
             value = self.evaluate(expression)
             print(self.stringify(value))
-        except RuntimeError:
-            pass
+        except Runtime_lox_error as e:
+            self.runtime_error(e)
 
     def check_num_operands(self, operator: Token, left, right) -> None:
-        if isinstance(float, left) and isinstance(float, right):
+        if isinstance(left, float) and isinstance(right, float):
             return
         raise Runtime_lox_error(operator, "Operands must be numbers")
 
     def visitBinary(self, expr: Binary):
         left = self.evaluate(expr.left)
-        right = self.visitUnary(expr.right)
+        right = self.evaluate(expr.right)
 
         match expr.operator.ttype:
             case TT.MINUS:

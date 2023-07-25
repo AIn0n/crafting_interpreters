@@ -2,6 +2,7 @@ import argparse
 from scanner import Scanner
 from lox_parser import Parser
 from ast_printer import Ast_printer
+from interpreter import Interpreter
 
 
 def run(src: str) -> None:
@@ -16,7 +17,7 @@ def run(src: str) -> None:
     if parser.had_error:
         return
 
-    print(Ast_printer().print(expression))
+    Interpreter().interpret(expression)
 
 
 def run_file(script_path: str):
