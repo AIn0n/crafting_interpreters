@@ -12,12 +12,12 @@ def run(src: str) -> None:
         return
 
     parser = Parser(tokens)
-    expression = parser.parse()
+    statements = parser.parse()
 
     if parser.had_error:
         return
 
-    Interpreter().interpret(expression)
+    Interpreter().interpret(statements)
 
 
 def run_file(script_path: str):

@@ -1,8 +1,9 @@
 from token import Token
 from Expr import *
-from tokenTypes import Token_type
+from tokenTypes import Token_type as TT
 from typing import Callable, Sequence
 from errors import report
+from Stmt import Stmt, Print, Expression
 
 
 class Parser_error(RuntimeError):
@@ -22,19 +23,19 @@ class Parser:
         return self.tokens[self.current - 1]
 
     def isAtEnd(self) -> bool:
-        return self.peek().ttype == Token_type.EOF
+        return self.peek().ttype == TT.EOF
 
     def advance(self) -> Token:
         if not self.isAtEnd():
             self.current += 1
         return self.previous()
 
-    def check(self, type_: Token_type) -> bool:
+    def check(self, type_: TT) -> bool:
         if self.isAtEnd():
             return False
         return self.peek().ttype == type_
 
-    def match(self, *types: Token_type) -> bool:
+    def match(self, *types: TT) -> bool:
         for type_ in types:
             if self.check(type_):
                 self.advance()
@@ -56,32 +57,28 @@ class Parser:
 
     def equality(self) -> Expr:
         return self.collect_right_recursion(
-            self.comparison, [Token_type.BANG_EQUAL, Token_type.EQUAL_EQUAL]
+            self.comparison, [TT.BANG_EQUAL, TT.EQUAL_EQUAL]
         )
 
     def comparison(self) -> Expr:
         return self.collect_right_recursion(
             self.term,
             [
-                Token_type.GREATER,
-                Token_type.GREATER_EQUAL,
-                Token_type.LESS,
-                Token_type.LESS_EQUAL,
+                TT.GREATER,
+                TT.GREATER_EQUAL,
+                TT.LESS,
+                TT.LESS_EQUAL,
             ],
         )
 
     def term(self) -> Expr:
-        return self.collect_right_recursion(
-            self.factor, [Token_type.MINUS, Token_type.PLUS]
-        )
+        return self.collect_right_recursion(self.factor, [TT.MINUS, TT.PLUS])
 
     def factor(self) -> Expr:
-        return self.collect_right_recursion(
-            self.unary, [Token_type.SLASH, Token_type.STAR]
-        )
+        return self.collect_right_recursion(self.unary, [TT.SLASH, TT.STAR])
 
     def unary(self) -> Expr:
-        if self.match(Token_type.BANG, Token_type.MINUS):
+        if self.match(TT.BANG, TT.MINUS):
             operator = self.previous()
             right = self.unary()
             return Unary(operator, right)
@@ -89,30 +86,30 @@ class Parser:
         return self.primary()
 
     def primary(self):
-        if self.match(Token_type.FALSE):
+        if self.match(TT.FALSE):
             return Literal(False)
-        if self.match(Token_type.TRUE):
+        if self.match(TT.TRUE):
             return Literal(True)
-        if self.match(Token_type.NIL):
+        if self.match(TT.NIL):
             return Literal(None)
 
-        if self.match(Token_type.NUMBER, Token_type.STRING):
+        if self.match(TT.NUMBER, TT.STRING):
             return Literal(self.previous().literal)
 
-        if self.match(Token_type.LEFT_PAREN):
+        if self.match(TT.LEFT_PAREN):
             expr = self.expression()
-            self.consume(Token_type.RIGHT_PAREN, "Expect ')' after expression.")
+            self.consume(TT.RIGHT_PAREN, "Expect ')' after expression.")
             return Grouping(expr)
 
         raise self.error(self.peek(), "Expect expression.")
 
-    def consume(self, type_: Token_type, msg: str) -> Token:
+    def consume(self, type_: TT, msg: str) -> Token:
         if self.check(type_):
             return self.advance()
         raise self.error(self.peek(), msg)
 
     def error(self, token: Token, msg: str):
-        if token.ttype == Token_type.EOF:
+        if token.ttype == TT.EOF:
             report(token.line, " at end", msg)
         else:
             report(token.line, f" at '{token.lexeme}'", msg)
@@ -123,26 +120,41 @@ class Parser:
         self.advance()
 
         while not self.isAtEnd():
-            if self.previous().ttype == Token_type.SEMICOLON:
+            if self.previous().ttype == TT.SEMICOLON:
                 return
 
             match self.peek().ttype:
                 case (
-                    Token_type.CLASS
-                    | Token_type.FUN
-                    | Token_type.VAR
-                    | Token_type.FOR
-                    | Token_type.IF
-                    | Token_type.WHILE
-                    | Token_type.PRINT
-                    | Token_type.RETURN
+                    TT.CLASS
+                    | TT.FUN
+                    | TT.VAR
+                    | TT.FOR
+                    | TT.IF
+                    | TT.WHILE
+                    | TT.PRINT
+                    | TT.RETURN
                 ):
                     return
 
             self.advance()
 
+    def print_statement(self):
+        value = self.expression()
+        self.consume(TT.SEMICOLON, "Expected ; after the value")
+        return Print(value)
+
+    def expression_statement(self):
+        expr = self.expression()
+        self.consume(TT.SEMICOLON, "Exprected ; after expression")
+        return Expression(expr)
+
+    def statement(self):
+        if self.match(TT.PRINT):
+            return self.print_statement()
+        return self.expression_statement()
+
     def parse(self):
-        try:
-            return self.expression()
-        except Parser_error:
-            return None
+        statements: list[Stmt] = []
+        while not self.isAtEnd():
+            statements.append(self.statement())
+        return statements

@@ -1,4 +1,6 @@
 from Expr import *
+from Stmt import Visitor as Stmt_visitor
+from Stmt import Expression, Print, Stmt
 from tokenTypes import Token_type as TT
 from token import Token
 
@@ -11,7 +13,13 @@ class Runtime_lox_error(Exception):
         self.had_error = False
 
 
-class Interpreter(Visitor):
+class Interpreter(Visitor, Stmt_visitor):
+    def visitExpression(self, stmt: Expression):
+        self.evaluate(stmt.expression)
+
+    def visitPrint(self, stmt: Print):
+        print(self.stringify(self.evaluate(stmt.expression)))
+
     def runtime_error(self, err: Runtime_lox_error):
         print(f"{err.msg} [{err.token.line}]")
         self.had_error = True
@@ -19,10 +27,13 @@ class Interpreter(Visitor):
     def stringify(self, expression) -> str:
         return "nil" if expression is None else str(expression)
 
-    def interpret(self, expression: Expr):
+    def execute(self, statement: Stmt):
+        statement.accept(self)
+
+    def interpret(self, statements: list[Stmt]):
         try:
-            value = self.evaluate(expression)
-            print(self.stringify(value))
+            for statement in statements:
+                self.execute(statement)
         except Runtime_lox_error as e:
             self.runtime_error(e)
 
