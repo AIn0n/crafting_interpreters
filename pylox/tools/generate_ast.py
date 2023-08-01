@@ -46,6 +46,7 @@ def main(output: str) -> None:
             "Unary:operator, right",
         ],
     )
+    define_ast(output, "Stmt", ["Expression:expression", "Print:expression"])
 
 
 if __name__ == "__main__":
