@@ -3,14 +3,7 @@ from Stmt import Visitor as Stmt_visitor
 from Stmt import Expression, Print, Stmt
 from tokenTypes import Token_type as TT
 from token import Token
-
-
-class Runtime_lox_error(Exception):
-    def __init__(self, token: Token, msg: str) -> None:
-        super().__init__(msg)
-        self.msg = msg
-        self.token = token
-        self.had_error = False
+from errors import Runtime_lox_error
 
 
 class Interpreter(Visitor, Stmt_visitor):
