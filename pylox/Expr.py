@@ -17,6 +17,9 @@ class Visitor:
     def visitUnary(self, expr):
         pass
 
+    def visitVariable(self, expr):
+        pass
+
 
 class Binary(Expr):
     def __init__(self, left, operator, right):
@@ -51,3 +54,11 @@ class Unary(Expr):
 
     def accept(self, visitor):
         return visitor.visitUnary(self)
+
+
+class Variable(Expr):
+    def __init__(self, name):
+        self.name = name
+
+    def accept(self, visitor):
+        return visitor.visitVariable(self)

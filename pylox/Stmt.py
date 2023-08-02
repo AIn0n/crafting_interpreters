@@ -11,6 +11,9 @@ class Visitor:
     def visitPrint(self, stmt):
         pass
 
+    def visitVar(self, stmt):
+        pass
+
 
 class Expression(Stmt):
     def __init__(self, expression):
@@ -26,3 +29,12 @@ class Print(Stmt):
 
     def accept(self, visitor):
         return visitor.visitPrint(self)
+
+
+class Var(Stmt):
+    def __init__(self, name, initializer):
+        self.name = name
+        self.initializer = initializer
+
+    def accept(self, visitor):
+        return visitor.visitVar(self)

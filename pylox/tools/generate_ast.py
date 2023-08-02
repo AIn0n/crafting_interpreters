@@ -44,9 +44,14 @@ def main(output: str) -> None:
             "Grouping:expression",
             "Literal:value",
             "Unary:operator, right",
+            "Variable:name",
         ],
     )
-    define_ast(output, "Stmt", ["Expression:expression", "Print:expression"])
+    define_ast(
+        output,
+        "Stmt",
+        ["Expression:expression", "Print:expression", "Var:name, initializer"],
+    )
 
 
 if __name__ == "__main__":
