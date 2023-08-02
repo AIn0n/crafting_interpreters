@@ -1,12 +1,27 @@
 from Expr import *
 from Stmt import Visitor as Stmt_visitor
-from Stmt import Expression, Print, Stmt
+from Stmt import Expression, Print, Stmt, Var
 from tokenTypes import Token_type as TT
 from token import Token
 from errors import Runtime_lox_error
+from Environment import Environment
 
 
 class Interpreter(Visitor, Stmt_visitor):
+    def __init__(self) -> None:
+        super().__init__()
+        self.env = Environment()
+
+    def visitVariable(self, expr: Variable):
+        return self.env.get(expr.name)
+
+    def visitVar(self, stmt: Var):
+        value = None
+        if stmt.initializer is not None:
+            value = self.evaluate(stmt.initializer)
+
+        self.env.define(stmt.name.lexeme, value)
+
     def visitExpression(self, stmt: Expression):
         self.evaluate(stmt.expression)
 

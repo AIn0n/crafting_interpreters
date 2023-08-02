@@ -5,41 +5,44 @@ from ast_printer import Ast_printer
 from interpreter import Interpreter
 
 
-def run(src: str) -> None:
-    scanner = Scanner(src)
-    tokens = scanner.scan_tokens()
-    if scanner.had_error:
-        return
+class Lox:
+    def __init__(self) -> None:
+        self.interpreter = Interpreter()
 
-    parser = Parser(tokens)
-    statements = parser.parse()
+    def run(self, src: str) -> None:
+        scanner = Scanner(src)
+        tokens = scanner.scan_tokens()
+        if scanner.had_error:
+            return
 
-    if parser.had_error:
-        return
+        parser = Parser(tokens)
+        statements = parser.parse()
 
-    Interpreter().interpret(statements)
+        if parser.had_error:
+            return
 
+        self.interpreter.interpret(statements)
 
-def run_file(script_path: str):
-    with open(script_path, "rt") as f:
-        run(f.read())
+    def run_file(self, script_path: str):
+        with open(script_path, "rt") as f:
+            self.run(f.read())
 
-
-def run_prompt():
-    while True:
-        try:
-            line = input("> ")
-            run(line)
-        except EOFError:
-            print("\nsee you later :)")
-            break
+    def run_prompt(self):
+        while True:
+            try:
+                line = input("> ")
+                self.run(line)
+            except EOFError:
+                print("\nsee you later :)")
+                break
 
 
 def main(script_path: str) -> None:
+    lox = Lox()
     if len(script_path) > 0:
-        run_file(script_path)
+        lox.run_file(script_path)
     else:
-        run_prompt()
+        lox.run_prompt()
 
 
 if __name__ == "__main__":
