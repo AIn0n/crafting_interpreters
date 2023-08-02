@@ -3,7 +3,7 @@ from Expr import *
 from tokenTypes import Token_type as TT
 from typing import Callable, Sequence
 from errors import report
-from Stmt import Stmt, Print, Expression
+from Stmt import Stmt, Print, Expression, Var
 
 
 class Parser_error(RuntimeError):
@@ -101,6 +101,9 @@ class Parser:
             self.consume(TT.RIGHT_PAREN, "Expect ')' after expression.")
             return Grouping(expr)
 
+        if self.match(TT.IDENTIFIER):
+            return Variable(self.previous())
+
         raise self.error(self.peek(), "Expect expression.")
 
     def consume(self, type_: TT, msg: str) -> Token:
@@ -153,8 +156,27 @@ class Parser:
             return self.print_statement()
         return self.expression_statement()
 
+    def var_declaration(self):
+        name = self.consume(TT.IDENTIFIER, "Expected variable name")
+        initializer = None
+        if self.match(TT.EQUAL):
+            initializer = self.expression()
+
+        self.consume(TT.SEMICOLON, "Expected ; after variable declaration")
+        return Var(name, initializer)
+
+    def declaration(self):
+        try:
+            if self.match(TT.VAR):
+                return self.var_declaration()
+
+            return self.statement()
+        except Parser_error as e:
+            self.synchronize()
+            return None
+
     def parse(self):
         statements: list[Stmt] = []
         while not self.isAtEnd():
-            statements.append(self.statement())
+            statements.append(self.declaration())
         return statements
