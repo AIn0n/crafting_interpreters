@@ -40,6 +40,7 @@ def main(output: str) -> None:
         output,
         "Expr",
         [
+            "Assign:name, value",
             "Binary:left, operator, right",
             "Grouping:expression",
             "Literal:value",

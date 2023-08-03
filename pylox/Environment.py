@@ -6,6 +6,11 @@ class Environment:
     def __init__(self) -> None:
         self.values: MutableMapping[str, Any] = {}
 
+    def assign(self, name, value) -> None:
+        if name.lexeme not in self.values:
+            raise Runtime_lox_error(name, f"Undefined variable '{name.lexeme}'.")
+        self.values[name.lexeme] = value
+
     def define(self, name: str, value) -> None:
         self.values[name] = value
 

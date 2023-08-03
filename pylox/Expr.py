@@ -5,6 +5,9 @@ class Expr:
 
 
 class Visitor:
+    def visitAssign(self, expr):
+        pass
+
     def visitBinary(self, expr):
         pass
 
@@ -19,6 +22,15 @@ class Visitor:
 
     def visitVariable(self, expr):
         pass
+
+
+class Assign(Expr):
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+
+    def accept(self, visitor):
+        return visitor.visitAssign(self)
 
 
 class Binary(Expr):

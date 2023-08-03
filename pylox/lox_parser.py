@@ -43,8 +43,23 @@ class Parser:
 
         return False
 
+    def assignment(self) -> Expr:
+        expr = self.equality()
+
+        if self.match(TT.EQUAL):
+            equals = self.previous()
+            value = self.assignment()
+
+            if isinstance(expr, Variable):
+                name = expr.name
+                return Assign(name, value)
+
+            self.error(equals, "Invalid assignment target")
+
+        return expr
+
     def expression(self) -> Expr:
-        return self.equality()
+        return self.assignment()
 
     def collect_right_recursion(self, func: Callable, types: Sequence) -> Expr:
         expr = func()

@@ -12,6 +12,11 @@ class Interpreter(Visitor, Stmt_visitor):
         super().__init__()
         self.env = Environment()
 
+    def visitAssign(self, expr: Assign):
+        value = self.evaluate(expr.value)
+        self.env.assign(expr.name, value)
+        return value
+
     def visitVariable(self, expr: Variable):
         return self.env.get(expr.name)
 
