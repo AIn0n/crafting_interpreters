@@ -51,7 +51,12 @@ def main(output: str) -> None:
     define_ast(
         output,
         "Stmt",
-        ["Expression:expression", "Print:expression", "Var:name, initializer"],
+        [
+            "Block:statements",
+            "Expression:expression",
+            "Print:expression",
+            "Var:name, initializer",
+        ],
     )
 
 

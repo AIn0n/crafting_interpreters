@@ -3,7 +3,7 @@ from Expr import *
 from tokenTypes import Token_type as TT
 from typing import Callable, Sequence
 from errors import report
-from Stmt import Stmt, Print, Expression, Var
+from Stmt import Stmt, Print, Expression, Var, Block
 
 
 class Parser_error(RuntimeError):
@@ -166,9 +166,19 @@ class Parser:
         self.consume(TT.SEMICOLON, "Exprected ; after expression")
         return Expression(expr)
 
-    def statement(self):
+    def block(self) -> Sequence[Stmt]:
+        statements = []
+        while not self.check(TT.RIGHT_BRACE) and not self.isAtEnd():
+            statements.append(self.declaration())
+
+        self.consume(TT.RIGHT_BRACE, "Expect } after block")
+        return statements
+
+    def statement(self) -> Stmt:
         if self.match(TT.PRINT):
             return self.print_statement()
+        if self.match(TT.LEFT_BRACE):
+            return Block(self.block())
         return self.expression_statement()
 
     def var_declaration(self):

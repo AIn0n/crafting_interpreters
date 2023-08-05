@@ -1,16 +1,29 @@
 from Expr import *
 from Stmt import Visitor as Stmt_visitor
-from Stmt import Expression, Print, Stmt, Var
+from Stmt import Expression, Print, Stmt, Var, Block
 from tokenTypes import Token_type as TT
 from token import Token
 from errors import Runtime_lox_error
 from Environment import Environment
+from typing import Sequence
 
 
 class Interpreter(Visitor, Stmt_visitor):
     def __init__(self) -> None:
         super().__init__()
         self.env = Environment()
+
+    def exec_block(self, statements: Sequence[Stmt], env: Environment) -> None:
+        previous = self.env
+        try:
+            self.env = env
+            for statement in statements:
+                self.execute(statement)
+        finally:
+            self.env = previous
+
+    def visitBlock(self, stmt: Block) -> None:
+        self.exec_block(stmt.statements, Environment(self.env))
 
     def visitAssign(self, expr: Assign):
         value = self.evaluate(expr.value)

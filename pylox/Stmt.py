@@ -5,6 +5,9 @@ class Stmt:
 
 
 class Visitor:
+    def visitBlock(self, stmt):
+        pass
+
     def visitExpression(self, stmt):
         pass
 
@@ -13,6 +16,14 @@ class Visitor:
 
     def visitVar(self, stmt):
         pass
+
+
+class Block(Stmt):
+    def __init__(self, statements):
+        self.statements = statements
+
+    def accept(self, visitor):
+        return visitor.visitBlock(self)
 
 
 class Expression(Stmt):
