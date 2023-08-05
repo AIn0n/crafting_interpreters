@@ -3,6 +3,7 @@ from scanner import Scanner
 from lox_parser import Parser
 from ast_printer import Ast_printer
 from interpreter import Interpreter
+from Stmt import Expression
 
 
 class Lox:
@@ -22,6 +23,9 @@ class Lox:
             return
 
         self.interpreter.interpret(statements)
+
+        if isinstance(statements[0], Expression):
+            print(self.interpreter.evaluate(statements[0].expression))
 
     def run_file(self, script_path: str):
         with open(script_path, "rt") as f:
