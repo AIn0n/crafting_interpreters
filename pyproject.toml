@@ -12,3 +12,6 @@ dependencies = [
 ]
 requires-python = ">=3.10"
 license = {text = "GPL3"}
+
+[tool.pdm.scripts]
+precommit= {composite = ["black pylox/", "mypy pylox/ --check-untyped-defs"]}
