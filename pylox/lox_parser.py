@@ -43,8 +43,28 @@ class Parser:
 
         return False
 
-    def assignment(self) -> Expr:
+    def and_expr(self) -> Expr:
         expr = self.equality()
+
+        while self.match(TT.AND):
+            operator = self.previous()
+            right = self.equality()
+            expr = Logical(expr, operator, right)
+
+        return expr
+
+    def or_expr(self) -> Expr:
+        expr = self.and_expr()
+
+        while self.match(TT.OR):
+            operator = self.previous()
+            right = self.and_expr()
+            expr = Logical(expr, operator, right)
+
+        return expr
+
+    def assignment(self) -> Expr:
+        expr = self.or_expr()
 
         if self.match(TT.EQUAL):
             equals = self.previous()

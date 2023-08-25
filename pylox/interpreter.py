@@ -22,6 +22,18 @@ class Interpreter(Visitor, Stmt_visitor):
         finally:
             self.env = previous
 
+    def visitLogical(self, expr: Logical):
+        left = self.evaluate(expr.left)
+
+        if expr.operator == TT.OR:
+            if self.is_truthy(left):
+                return left
+        else:
+            if not self.is_truthy(left):
+                return left
+
+        return self.evaluate(expr.right)
+
     def visitIf(self, stmt) -> None:
         if self.is_truthy(self.evaluate(stmt.condition)):
             self.execute(stmt.then_branch)
