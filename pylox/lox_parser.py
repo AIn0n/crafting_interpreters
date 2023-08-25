@@ -3,7 +3,7 @@ from Expr import *
 from tokenTypes import Token_type as TT
 from typing import Callable, Sequence
 from errors import report
-from Stmt import Stmt, Print, Expression, Var, Block
+from Stmt import Stmt, Print, Expression, Var, Block, If
 
 
 class Parser_error(RuntimeError):
@@ -174,7 +174,20 @@ class Parser:
         self.consume(TT.RIGHT_BRACE, "Expect } after block")
         return statements
 
+    def if_statement(self) -> Stmt:
+        self.consume(TT.LEFT_PAREN, "expected ( after a if")
+        condition = self.expression()
+        self.consume(TT.RIGHT_PAREN, "Expected ) after if condition")
+        then_branch = self.statement()
+        else_branch = None
+        if self.match(TT.ELSE):
+            else_branch = self.statement()
+
+        return If(condition, then_branch, else_branch)
+
     def statement(self) -> Stmt:
+        if self.match(TT.IF):
+            return self.if_statement()
         if self.match(TT.PRINT):
             return self.print_statement()
         if self.match(TT.LEFT_BRACE):

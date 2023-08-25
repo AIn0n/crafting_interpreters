@@ -11,6 +11,9 @@ class Visitor:
     def visitExpression(self, stmt):
         pass
 
+    def visitIf(self, stmt):
+        pass
+
     def visitPrint(self, stmt):
         pass
 
@@ -32,6 +35,16 @@ class Expression(Stmt):
 
     def accept(self, visitor):
         return visitor.visitExpression(self)
+
+
+class If(Stmt):
+    def __init__(self, condition, then_branch, else_branch):
+        self.condition = condition
+        self.then_branch = then_branch
+        self.else_branch = else_branch
+
+    def accept(self, visitor):
+        return visitor.visitIf(self)
 
 
 class Print(Stmt):

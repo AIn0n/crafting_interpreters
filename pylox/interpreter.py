@@ -22,6 +22,12 @@ class Interpreter(Visitor, Stmt_visitor):
         finally:
             self.env = previous
 
+    def visitIf(self, stmt) -> None:
+        if self.is_truthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.then_branch)
+        elif stmt.else_branch is not None:
+            self.execute(stmt.else_branch)
+
     def visitBlock(self, stmt: Block) -> None:
         self.exec_block(stmt.statements, Environment(self.env))
 
