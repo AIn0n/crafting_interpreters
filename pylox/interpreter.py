@@ -1,6 +1,6 @@
 from Expr import *
 from Stmt import Visitor as Stmt_visitor
-from Stmt import Expression, Print, Stmt, Var, Block
+from Stmt import Expression, Print, Stmt, Var, Block, While
 from tokenTypes import Token_type as TT
 from token import Token
 from errors import Runtime_lox_error
@@ -21,6 +21,10 @@ class Interpreter(Visitor, Stmt_visitor):
                 self.execute(statement)
         finally:
             self.env = previous
+
+    def visitWhile(self, stmt: While):
+        while self.is_truthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.body)
 
     def visitLogical(self, expr: Logical):
         left = self.evaluate(expr.left)

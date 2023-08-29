@@ -20,6 +20,9 @@ class Visitor:
     def visitVar(self, stmt):
         pass
 
+    def visitWhile(self, stmt):
+        pass
+
 
 class Block(Stmt):
     def __init__(self, statements):
@@ -62,3 +65,12 @@ class Var(Stmt):
 
     def accept(self, visitor):
         return visitor.visitVar(self)
+
+
+class While(Stmt):
+    def __init__(self, condition, body):
+        self.condition = condition
+        self.body = body
+
+    def accept(self, visitor):
+        return visitor.visitWhile(self)

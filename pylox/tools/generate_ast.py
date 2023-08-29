@@ -58,6 +58,7 @@ def main(output: str) -> None:
             "If:condition, then_branch, else_branch",
             "Print:expression",
             "Var:name, initializer",
+            "While:condition, body",
         ],
     )
 
