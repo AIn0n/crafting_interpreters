@@ -213,7 +213,42 @@ class Parser:
 
         return While(condition, body)
 
+    def for_statement(self):
+        self.consume(TT.LEFT_PAREN, "Expected ( after for keyword")
+        initializer = None
+        if not self.match(TT.SEMICOLON):
+            if self.match(TT.VAR):
+                initializer = self.var_declaration()
+            else:
+                initializer = self.expression_statement()
+
+        condition = None
+        if not self.check(TT.SEMICOLON):
+            condition = self.expression()
+        self.consume(TT.SEMICOLON, "Expected ; after loop condition")
+
+        increment = None
+        if not self.check(TT.RIGHT_PAREN):
+            increment = self.expression()
+        self.consume(TT.RIGHT_PAREN, "Expected ) after for clauses")
+
+        body = self.statement()
+
+        if increment is not None:
+            body = Block([body, Expression(increment)])
+
+        if condition is None:
+            condition = Literal(True)
+        body = While(condition, body)
+
+        if initializer is not None:
+            body = Block([initializer, body])
+
+        return body
+
     def statement(self) -> Stmt:
+        if self.match(TT.FOR):
+            return self.for_statement()
         if self.match(TT.IF):
             return self.if_statement()
         if self.match(TT.PRINT):
