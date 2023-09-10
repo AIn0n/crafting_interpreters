@@ -112,13 +112,34 @@ class Parser:
     def factor(self) -> Expr:
         return self.collect_right_recursion(self.unary, [TT.SLASH, TT.STAR])
 
+    def finish_call(self, callee: Expr) -> Expr:
+        arguments = []
+        if not self.check(TT.RIGHT_PAREN):
+            while True:
+                arguments.append(self.expression())
+                if not self.match(TT.COMMA):
+                    break
+        paren = self.consume(TT.RIGHT_PAREN, "Expected ) after a function arguments")
+        return Call(callee, paren, arguments)
+
+    def call(self) -> Expr:
+        expr = self.primary()
+
+        while True:
+            if self.match(TT.LEFT_PAREN):
+                expr = self.finish_call(expr)
+            else:
+                break
+
+        return expr
+
     def unary(self) -> Expr:
         if self.match(TT.BANG, TT.MINUS):
             operator = self.previous()
             right = self.unary()
             return Unary(operator, right)
 
-        return self.primary()
+        return self.call()
 
     def primary(self):
         if self.match(TT.FALSE):

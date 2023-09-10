@@ -42,6 +42,7 @@ def main(output: str) -> None:
         [
             "Assign:name, value",
             "Binary:left, operator, right",
+            "Call:callee, paren, arguments",
             "Grouping:expression",
             "Literal:value",
             "Logical:left, operator, right",
