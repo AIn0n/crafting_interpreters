@@ -116,6 +116,8 @@ class Parser:
         arguments = []
         if not self.check(TT.RIGHT_PAREN):
             while True:
+                if len(arguments) >= 255:
+                    self.error(self.peek(), "Function can have more than 255 arguments")
                 arguments.append(self.expression())
                 if not self.match(TT.COMMA):
                     break
