@@ -13,6 +13,15 @@ class Interpreter(Visitor, Stmt_visitor):
         super().__init__()
         self.env = Environment()
 
+    def visitCall(self, expr: Call):
+        callee = self.evaluate(expr.callee)
+        arguments = []
+        for argument in expr.arguments:
+            arguments.append(self.evaluate(argument))
+
+        func = callee
+        return func.call(self, arguments)
+
     def exec_block(self, statements: Sequence[Stmt], env: Environment) -> None:
         previous = self.env
         try:
