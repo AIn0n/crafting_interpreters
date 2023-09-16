@@ -6,6 +6,7 @@ from token import Token
 from errors import Runtime_lox_error
 from Environment import Environment
 from typing import Sequence
+from LoxCallable import LoxCallable
 
 
 class Interpreter(Visitor, Stmt_visitor):
@@ -19,7 +20,17 @@ class Interpreter(Visitor, Stmt_visitor):
         for argument in expr.arguments:
             arguments.append(self.evaluate(argument))
 
+        if not isinstance(callee, LoxCallable):
+            raise Runtime_lox_error(expr.paren, "can only call functions and classes.")
+
         func = callee
+
+        if len(arguments) != func.arity():
+            raise Runtime_lox_error(
+                expr.paren,
+                f"Expected {func.arity()} arguments, but got {len(arguments)} instead.",
+            )
+
         return func.call(self, arguments)
 
     def exec_block(self, statements: Sequence[Stmt], env: Environment) -> None:

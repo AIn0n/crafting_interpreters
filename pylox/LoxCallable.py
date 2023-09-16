@@ -1,3 +1,6 @@
 class LoxCallable:
-    def call(interpreter, arguments: list):
+    def arity(self) -> int:
+        pass
+
+    def call(self, interpreter, arguments: list):
         pass
