@@ -3,7 +3,7 @@ from Expr import *
 from tokenTypes import Token_type as TT
 from typing import Callable, Sequence
 from errors import report
-from Stmt import Stmt, Print, Expression, Var, Block, If, While
+from Stmt import *
 
 
 class Parser_error(RuntimeError):
@@ -291,8 +291,31 @@ class Parser:
         self.consume(TT.SEMICOLON, "Expected ; after variable declaration")
         return Var(name, initializer)
 
+    def function(self, kind: str) -> Function:
+        name = self.consume(TT.IDENTIFIER, f"Expected {kind} name.")
+
+        # parameters parsing
+        parameters: list[Token] = []
+        if not self.check(TT.RIGHT_PAREN):
+            while True:
+                if len(parameters) >= 255:
+                    self.error(self.peek(), "Can't have more than 255 parameters")
+                parameters.append(
+                    self.consume(TT.IDENTIFIER, "Expected parameter name")
+                )
+                if not self.match(TT.COMMA):
+                    break
+        self.consume(TT.RIGHT_PAREN, "expected ) after function parameters")
+
+        # parsing the body of the function
+        self.consume(TT.LEFT_BRACE, f"Expected left brace before {kind} body")
+        body = self.block()
+        return Function(name, parameters, body)
+
     def declaration(self):
         try:
+            if self.match(TT.FUN):
+                return self.function("function")
             if self.match(TT.VAR):
                 return self.var_declaration()
 

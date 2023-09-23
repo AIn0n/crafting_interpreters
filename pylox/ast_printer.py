@@ -3,7 +3,7 @@ from token import Token
 from tokenTypes import Token_type
 
 
-class Ast_printer(Visitor):
+class Ast_printer(VisitorExpr):
     def parenthasize(self, name, *args: Expr):
         res = f"({name}"
         for expr in args:

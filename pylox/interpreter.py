@@ -1,6 +1,5 @@
 from Expr import *
-from Stmt import Visitor as Stmt_visitor
-from Stmt import Expression, Print, Stmt, Var, Block, While
+from Stmt import *
 from tokenTypes import Token_type as TT
 from token import Token
 from errors import Runtime_lox_error
@@ -10,7 +9,7 @@ from LoxCallable import LoxCallable
 from native_extensions import NativeClock
 
 
-class Interpreter(Visitor, Stmt_visitor):
+class Interpreter(VisitorExpr, VisitorStmt):
     def __init__(self) -> None:
         super().__init__()
         self.globals = Environment()
