@@ -6,6 +6,7 @@ from errors import Runtime_lox_error
 from Environment import Environment
 from typing import Sequence
 from LoxCallable import LoxCallable
+from lox_function import LoxFunction
 from native_extensions import NativeClock
 
 
@@ -15,6 +16,10 @@ class Interpreter(VisitorExpr, VisitorStmt):
         self.globals = Environment()
         self.globals.define("clock", NativeClock)
         self.env = self.globals
+
+    def visitFunction(self, stmt: Function):
+        function = LoxFunction(stmt)
+        self.env.define(stmt.name.lexeme, function)
 
     def visitCall(self, expr: Call):
         callee = self.evaluate(expr.callee)
