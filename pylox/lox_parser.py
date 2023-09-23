@@ -269,6 +269,15 @@ class Parser:
 
         return body
 
+    def return_statement(self):
+        keyword = self.previous()
+        value = None
+        if not self.check(TT.SEMICOLON):
+            value = self.expression()
+
+        self.consume(TT.SEMICOLON, "Expect ; after return value.")
+        return Return(keyword, value)
+
     def statement(self) -> Stmt:
         if self.match(TT.FOR):
             return self.for_statement()
@@ -276,6 +285,8 @@ class Parser:
             return self.if_statement()
         if self.match(TT.PRINT):
             return self.print_statement()
+        if self.match(TT.RETURN):
+            return self.return_statement()
         if self.match(TT.WHILE):
             return self.while_statement()
         if self.match(TT.LEFT_BRACE):

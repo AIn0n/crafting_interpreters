@@ -29,6 +29,10 @@ class VisitorStmt(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def visitReturn(self, stmt):
+        pass
+
+    @abc.abstractmethod
     def visitVar(self, stmt):
         pass
 
@@ -64,6 +68,12 @@ class If(Stmt):
 class Print(Stmt):
     def __init__(self, expression):
         self.expression = expression
+
+
+class Return(Stmt):
+    def __init__(self, keyword, value):
+        self.keyword = keyword
+        self.value = value
 
 
 class Var(Stmt):
