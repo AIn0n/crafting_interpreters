@@ -293,6 +293,7 @@ class Parser:
 
     def function(self, kind: str) -> Function:
         name = self.consume(TT.IDENTIFIER, f"Expected {kind} name.")
+        self.consume(TT.LEFT_PAREN, f"Expected ( afte {kind} name")
 
         # parameters parsing
         parameters: list[Token] = []

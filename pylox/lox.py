@@ -1,7 +1,6 @@
 import argparse
 from scanner import Scanner
 from lox_parser import Parser
-from ast_printer import Ast_printer
 from interpreter import Interpreter
 
 
