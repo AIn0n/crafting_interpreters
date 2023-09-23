@@ -1,6 +1,11 @@
-class LoxCallable:
-    def arity(self) -> int:
-        pass
+import abc
 
+
+class LoxCallable(abc.ABC):
+    @abc.abstractmethod
+    def arity(self) -> int:
+        """returns arity (number of arguments) of the function"""
+
+    @abc.abstractmethod
     def call(self, interpreter, arguments: list):
-        pass
+        """calls function in interpreter"""

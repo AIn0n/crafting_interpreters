@@ -113,7 +113,7 @@ class Parser:
         return self.collect_right_recursion(self.unary, [TT.SLASH, TT.STAR])
 
     def finish_call(self, callee: Expr) -> Expr:
-        arguments = []
+        arguments: list = []
         if not self.check(TT.RIGHT_PAREN):
             while True:
                 if len(arguments) >= 255:
