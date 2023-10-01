@@ -26,7 +26,7 @@ class Interpreter(VisitorExpr, VisitorStmt):
         raise ReturnException(value)
 
     def visitFunction(self, stmt: Function):
-        function = LoxFunction(stmt)
+        function = LoxFunction(stmt, self.env)
         self.env.define(stmt.name.lexeme, function)
 
     def visitCall(self, expr: Call):

@@ -5,11 +5,12 @@ from lox_return import ReturnException
 
 
 class LoxFunction(LoxCallable):
-    def __init__(self, declaration: Function) -> None:
+    def __init__(self, declaration: Function, closure: Environment) -> None:
         self.declaration = declaration
+        self.closure = closure
 
     def call(self, interpreter, arguments: list):
-        environment = Environment(interpreter.globals)
+        environment = Environment(self.closure)
         for arg, param in zip(arguments, self.declaration.params):
             environment.define(param.lexeme, arg)
 
