@@ -8,6 +8,7 @@ from typing import Sequence
 from LoxCallable import LoxCallable
 from lox_function import LoxFunction
 from native_extensions import NativeClock
+from lox_return import ReturnException
 
 
 class Interpreter(VisitorExpr, VisitorStmt):
@@ -16,6 +17,13 @@ class Interpreter(VisitorExpr, VisitorStmt):
         self.globals = Environment()
         self.globals.define("clock", NativeClock)
         self.env = self.globals
+
+    def visitReturn(self, stmt: Return):
+        value = None
+        if stmt.value is not None:
+            value = self.evaluate(stmt.value)
+
+        raise ReturnException(value)
 
     def visitFunction(self, stmt: Function):
         function = LoxFunction(stmt)

@@ -1,6 +1,7 @@
 from LoxCallable import LoxCallable
 from Stmt import Function
 from Environment import Environment
+from lox_return import ReturnException
 
 
 class LoxFunction(LoxCallable):
@@ -12,7 +13,11 @@ class LoxFunction(LoxCallable):
         for arg, param in zip(arguments, self.declaration.params):
             environment.define(param.lexeme, arg)
 
-        interpreter.exec_block(self.declaration.body, environment)
+        try:
+            interpreter.exec_block(self.declaration.body, environment)
+        except ReturnException as e:
+            return e.value
+
         return None
 
     def arity(self) -> int:
