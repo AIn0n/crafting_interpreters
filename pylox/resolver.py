@@ -1,4 +1,4 @@
-from Stmt import VisitorStmt, Stmt
+from Stmt import VisitorStmt, Stmt, Var
 from Expr import VisitorExpr, Expr
 from interpreter import Interpreter
 from typing import Mapping
@@ -7,7 +7,21 @@ from typing import Mapping
 class Resolver(VisitorExpr, VisitorStmt):
     def __init__(self, interpreter: Interpreter) -> None:
         self.interpreter = interpreter
-        self.scopes: list[Mapping] = []
+        self.scopes: list[Mapping[str, bool]] = []
+
+    def define(self, name) -> None:
+        if not len(self.scopes) == 0:
+            self.scopes[len(self.scopes) - 1][name.lexeme] = True
+
+    def declare(self, name) -> None:
+        if not len(self.scopes) == 0:
+            self.scopes[len(self.scopes) - 1][name.lexeme] = False
+
+    def visitVar(self, stmt: Var) -> None:
+        self.declare(stmt.name)
+        if stmt.initializer is None:
+            self.resolve_expr(stmt.initializer)
+        self.define(stmt.name)
 
     def beginScope(self) -> None:
         self.scopes.append({})
