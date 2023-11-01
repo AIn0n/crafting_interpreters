@@ -1,4 +1,4 @@
-from Stmt import VisitorStmt, Stmt, Var
+from Stmt import VisitorStmt, Stmt, Var, Function
 from Expr import VisitorExpr, Expr, Variable, Assign
 from interpreter import Interpreter
 from typing import Mapping
@@ -9,6 +9,21 @@ class Resolver(VisitorExpr, VisitorStmt):
     def __init__(self, interpreter: Interpreter) -> None:
         self.interpreter = interpreter
         self.scopes: list[Mapping[str, bool]] = []
+
+    def resolve_function(self, stmt: Function) -> None:
+        self.beginScope()
+        for param in stmt.params:
+            self.declare(param)
+            self.define(param)
+
+        self.resolve_stmt(stmt.body)
+        self.endScope()
+
+    def visitFunction(self, stmt: Function) -> None:
+        self.define(stmt.name)
+        self.declare(stmt.name)
+
+        self.resolve_function(stmt)
 
     def visitAssign(self, expr: Assign) -> None:
         self.resolve_expr(expr.value)
