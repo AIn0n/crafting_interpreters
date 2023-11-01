@@ -1,5 +1,5 @@
 from Stmt import VisitorStmt, Stmt, Var
-from Expr import VisitorExpr, Expr, Variable
+from Expr import VisitorExpr, Expr, Variable, Assign
 from interpreter import Interpreter
 from typing import Mapping
 from errors import Runtime_lox_error
@@ -9,6 +9,10 @@ class Resolver(VisitorExpr, VisitorStmt):
     def __init__(self, interpreter: Interpreter) -> None:
         self.interpreter = interpreter
         self.scopes: list[Mapping[str, bool]] = []
+
+    def visitAssign(self, expr: Assign) -> None:
+        self.resolve_expr(expr.value)
+        self.resolve_local(expr, expr.name)
 
     def define(self, name) -> None:
         if not self.scopes_empty():
