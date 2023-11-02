@@ -1,14 +1,57 @@
-from Stmt import VisitorStmt, Stmt, Var, Function
-from Expr import VisitorExpr, Expr, Variable, Assign
+from Stmt import *
+from Expr import *
 from interpreter import Interpreter
-from typing import Mapping
+from typing import MutableMapping
 from errors import Runtime_lox_error
 
 
 class Resolver(VisitorExpr, VisitorStmt):
     def __init__(self, interpreter: Interpreter) -> None:
         self.interpreter = interpreter
-        self.scopes: list[Mapping[str, bool]] = []
+        self.scopes: list[MutableMapping[str, bool]] = []
+
+    def visitExpression(self, stmt: Expression) -> None:
+        self.resolve(stmt.expression)
+
+    def visitIf(self, stmt: If) -> None:
+        self.resolve(stmt.condition)
+        self.resolve(stmt.then_branch)
+        if stmt.else_branch:
+            self.resolve(stmt.else_branch)
+
+    def visitPrint(self, stmt: Print) -> None:
+        self.resolve(stmt.expression)
+
+    def visitReturn(self, stmt: Return) -> None:
+        if stmt.value:
+            self.resolve(stmt.value)
+
+    def visitWhile(self, stmt: While) -> None:
+        self.resolve(stmt.condition)
+        self.resolve(stmt.body)
+
+    def visitBinary(self, expr: Binary) -> None:
+        self.resolve(expr.left)
+        self.resolve(expr.right)
+
+    def visitCall(self, expr: Call) -> None:
+        self.resolve(expr.callee)
+
+        for arg in expr.arguments:
+            self.resolve(arg)
+
+    def visitGrouping(self, expr: Grouping) -> None:
+        self.resolve(expr.expression)
+
+    def visitLiteral(self, expr) -> None:
+        return None
+
+    def visitLogical(self, expr: Logical) -> None:
+        self.resolve(expr.left)
+        self.resolve(expr.right)
+
+    def visitUnary(self, expr: Unary) -> None:
+        self.resolve(expr.right)
 
     def resolve_function(self, stmt: Function) -> None:
         self.beginScope()
@@ -16,7 +59,7 @@ class Resolver(VisitorExpr, VisitorStmt):
             self.declare(param)
             self.define(param)
 
-        self.resolve_stmt(stmt.body)
+        self.resolve(stmt.body)
         self.endScope()
 
     def visitFunction(self, stmt: Function) -> None:
@@ -26,7 +69,7 @@ class Resolver(VisitorExpr, VisitorStmt):
         self.resolve_function(stmt)
 
     def visitAssign(self, expr: Assign) -> None:
-        self.resolve_expr(expr.value)
+        self.resolve(expr.value)
         self.resolve_local(expr, expr.name)
 
     def define(self, name) -> None:
@@ -53,13 +96,13 @@ class Resolver(VisitorExpr, VisitorStmt):
     def scopes_empty(self) -> bool:
         return len(self.scopes) == 0
 
-    def scope_peek(self) -> Mapping[str, bool]:
+    def scope_peek(self) -> MutableMapping[str, bool]:
         return self.scopes[len(self.scopes) - 1]
 
     def visitVar(self, stmt: Var) -> None:
         self.declare(stmt.name)
         if stmt.initializer is None:
-            self.resolve_expr(stmt.initializer)
+            self.resolve(stmt.initializer)
         self.define(stmt.name)
 
     def beginScope(self) -> None:
@@ -68,15 +111,12 @@ class Resolver(VisitorExpr, VisitorStmt):
     def endScope(self) -> None:
         self.scopes.pop()
 
-    def resolve_expr(self, expr: Expr):
-        expr.accept(self)
-
-    def resolve_stmt(self, stmt: Stmt):
-        stmt.accept(self)
+    def resolve(self, cls):
+        cls.accept(self)
 
     def resolve_statements(self, statements):
         for stmt in statements:
-            self.resolve_stmt(stmt)
+            self.resolve(stmt)
 
     def visitBlock(self, stmt) -> None:
         self.beginScope()
