@@ -77,6 +77,8 @@ class Resolver(VisitorExpr, VisitorStmt):
             self.scopes[len(self.scopes) - 1][name.lexeme] = True
 
     def declare(self, name) -> None:
+        if name.lexeme in self.scope_peek():
+            Runtime_lox_error(name, "Already a variable with this name in this scope")
         if not self.scopes_empty():
             self.scopes[len(self.scopes) - 1][name.lexeme] = False
 
