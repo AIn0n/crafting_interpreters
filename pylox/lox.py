@@ -2,6 +2,7 @@ import argparse
 from scanner import Scanner
 from lox_parser import Parser
 from interpreter import Interpreter
+from resolver import Resolver
 
 
 class Lox:
@@ -16,6 +17,9 @@ class Lox:
 
         parser = Parser(tokens)
         statements = parser.parse()
+
+        resolver = Resolver(self.interpreter)
+        resolver.resolve(statements)
 
         if parser.had_error:
             return
