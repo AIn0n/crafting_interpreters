@@ -88,8 +88,14 @@ class Interpreter(VisitorExpr, VisitorStmt):
 
     def visitAssign(self, expr: Assign):
         value = self.evaluate(expr.value)
-        self.env.assign(expr.name, value)
-        return value
+        
+        dist: int = self.local.get(expr)
+        if dist:
+            self.env.assignAt(dist, expr.name)
+        else:
+            self.globals.assign(expr.name, value)
+
+        #return value
 
     def lookUpVar(self, name: Token, expr: Expr) -> Any:
         dist = self.local[expr]

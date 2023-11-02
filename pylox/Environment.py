@@ -16,6 +16,9 @@ class Environment:
             env = env.enclosing
         return env
 
+    def assignAt(self, dist: int, name, value):
+        self.ancestor(dist).values[name.lexeme] = value
+
     def assign(self, name, value) -> None:
         if name.lexeme not in self.values:
             if self.enclosing is not None:
