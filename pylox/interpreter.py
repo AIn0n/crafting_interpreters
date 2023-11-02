@@ -4,7 +4,7 @@ from tokenTypes import Token_type as TT
 from token import Token
 from errors import Runtime_lox_error
 from Environment import Environment
-from typing import Sequence, MutableMapping
+from typing import Sequence, MutableMapping, Any
 from LoxCallable import LoxCallable
 from lox_function import LoxFunction
 from native_extensions import NativeClock
@@ -91,8 +91,12 @@ class Interpreter(VisitorExpr, VisitorStmt):
         self.env.assign(expr.name, value)
         return value
 
+    def lookUpVar(self, name: Token, expr: Expr) -> Any:
+        dist = self.local[expr]
+        return self.env.GetAt(dist, name.lexeme) if dist else self.globals.get(name)
+
     def visitVariable(self, expr: Variable):
-        return self.env.get(expr.name)
+        return self.lookUpVar(expr.name, expr)
 
     def visitVar(self, stmt: Var):
         value = None
