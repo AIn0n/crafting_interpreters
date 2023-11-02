@@ -1,14 +1,23 @@
 from Stmt import *
 from Expr import *
-from interpreter import Interpreter
-from typing import MutableMapping
+
 from errors import Runtime_lox_error
+from interpreter import Interpreter
+
+from typing import MutableMapping, Sequence
+from enum import Enum, auto
+
+
+class FunctionType(Enum):
+    NONE = auto()
+    FUNCTION = auto()
 
 
 class Resolver(VisitorExpr, VisitorStmt):
     def __init__(self, interpreter: Interpreter) -> None:
         self.interpreter = interpreter
         self.scopes: list[MutableMapping[str, bool]] = []
+        self.current_function = FunctionType.NONE
 
     def visitExpression(self, stmt: Expression) -> None:
         self.resolve(stmt.expression)
@@ -23,6 +32,9 @@ class Resolver(VisitorExpr, VisitorStmt):
         self.resolve(stmt.expression)
 
     def visitReturn(self, stmt: Return) -> None:
+        if self.current_function is FunctionType.NONE:
+            raise Runtime_lox_error(stmt.keyword, "Can't return from top-level code")
+
         if stmt.value:
             self.resolve(stmt.value)
 
@@ -53,7 +65,10 @@ class Resolver(VisitorExpr, VisitorStmt):
     def visitUnary(self, expr: Unary) -> None:
         self.resolve(expr.right)
 
-    def resolve_function(self, stmt: Function) -> None:
+    def resolve_function(self, stmt: Function, _type: FunctionType) -> None:
+        enclosing_function = self.current_function
+        self.current_function = _type
+
         self.beginScope()
         for param in stmt.params:
             self.declare(param)
@@ -61,12 +76,13 @@ class Resolver(VisitorExpr, VisitorStmt):
 
         self.resolve(stmt.body)
         self.endScope()
+        self.current_function = enclosing_function
 
     def visitFunction(self, stmt: Function) -> None:
-        self.define(stmt.name)
         self.declare(stmt.name)
+        self.define(stmt.name)
 
-        self.resolve_function(stmt)
+        self.resolve_function(stmt, FunctionType.FUNCTION)
 
     def visitAssign(self, expr: Assign) -> None:
         self.resolve(expr.value)
@@ -77,9 +93,11 @@ class Resolver(VisitorExpr, VisitorStmt):
             self.scopes[len(self.scopes) - 1][name.lexeme] = True
 
     def declare(self, name) -> None:
-        if name.lexeme in self.scope_peek():
-            Runtime_lox_error(name, "Already a variable with this name in this scope")
         if not self.scopes_empty():
+            if name.lexeme in self.scope_peek():
+                raise Runtime_lox_error(
+                    name, "Already a variable with this name in this scope"
+                )
             self.scopes[len(self.scopes) - 1][name.lexeme] = False
 
     def resolve_local(self, expr: Expr, name) -> None:
@@ -99,7 +117,7 @@ class Resolver(VisitorExpr, VisitorStmt):
         return len(self.scopes) == 0
 
     def scope_peek(self) -> MutableMapping[str, bool]:
-        return self.scopes[len(self.scopes) - 1]
+        return self.scopes[-1]
 
     def visitVar(self, stmt: Var) -> None:
         self.declare(stmt.name)
@@ -113,8 +131,12 @@ class Resolver(VisitorExpr, VisitorStmt):
     def endScope(self) -> None:
         self.scopes.pop()
 
-    def resolve(self, cls):
-        cls.accept(self)
+    def resolve(self, obj):
+        if isinstance(obj, Sequence):
+            for stmt in obj:
+                stmt.accept(self)
+        else:
+            obj.accept(self)
 
     def resolve_statements(self, statements):
         for stmt in statements:
