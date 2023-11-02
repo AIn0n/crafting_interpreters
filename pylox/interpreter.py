@@ -4,7 +4,7 @@ from tokenTypes import Token_type as TT
 from token import Token
 from errors import Runtime_lox_error
 from Environment import Environment
-from typing import Sequence
+from typing import Sequence, MutableMapping
 from LoxCallable import LoxCallable
 from lox_function import LoxFunction
 from native_extensions import NativeClock
@@ -17,6 +17,10 @@ class Interpreter(VisitorExpr, VisitorStmt):
         self.globals = Environment()
         self.globals.define("clock", NativeClock)
         self.env = self.globals
+        self.local: MutableMapping[Expr, int] = {}
+
+    def resolve(self, expr: Expr, depth: int):
+        self.local[expr] = depth
 
     def visitReturn(self, stmt: Return):
         value = None
