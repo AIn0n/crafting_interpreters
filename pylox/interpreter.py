@@ -20,7 +20,6 @@ class Interpreter(VisitorExpr, VisitorStmt):
         self.local: MutableMapping[Expr, int] = {}
 
     def resolve(self, expr: Expr, depth: int):
-        print(expr)
         self.local[expr] = depth
 
     def visitReturn(self, stmt: Return):

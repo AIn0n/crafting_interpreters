@@ -1,0 +1,7 @@
+
+fun printHello() {
+    return "hello world";
+}
+
+var val = printHello();
+print val;

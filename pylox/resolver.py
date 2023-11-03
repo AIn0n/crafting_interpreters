@@ -90,7 +90,7 @@ class Resolver(VisitorExpr, VisitorStmt):
 
     def define(self, name) -> None:
         if not self.scopes_empty():
-            self.scopes[len(self.scopes) - 1][name.lexeme] = True
+            self.scopes[-1][name.lexeme] = True
 
     def declare(self, name) -> None:
         if not self.scopes_empty():
@@ -98,7 +98,7 @@ class Resolver(VisitorExpr, VisitorStmt):
                 raise Runtime_lox_error(
                     name, "Already a variable with this name in this scope"
                 )
-            self.scopes[len(self.scopes) - 1][name.lexeme] = False
+            self.scopes[-1][name.lexeme] = False
 
     def resolve_local(self, expr: Expr, name) -> None:
         for idx, scope in enumerate(reversed(self.scopes)):
@@ -107,7 +107,8 @@ class Resolver(VisitorExpr, VisitorStmt):
                 break
 
     def visitVariable(self, expr: Variable) -> None:
-        if not self.scopes_empty() and not self.scope_peek()[expr.name.lexeme]:
+        peek = self.scope_peek()
+        if not self.scopes_empty() and expr.name.lexeme in  peek and not peek[expr.name.lexeme]:
             raise Runtime_lox_error(
                 expr.name, "Can't read local variable in it's own initializer"
             )
@@ -121,7 +122,7 @@ class Resolver(VisitorExpr, VisitorStmt):
 
     def visitVar(self, stmt: Var) -> None:
         self.declare(stmt.name)
-        if stmt.initializer is None:
+        if stmt.initializer is not None:
             self.resolve(stmt.initializer)
         self.define(stmt.name)
 
@@ -133,8 +134,7 @@ class Resolver(VisitorExpr, VisitorStmt):
 
     def resolve(self, obj):
         if isinstance(obj, Sequence):
-            for stmt in obj:
-                stmt.accept(self)
+            self.resolve_statements(obj)
         else:
             obj.accept(self)
 
@@ -144,5 +144,5 @@ class Resolver(VisitorExpr, VisitorStmt):
 
     def visitBlock(self, stmt) -> None:
         self.beginScope()
-        self.resolve_statements(stmt.statements)
+        self.resolve(stmt.statements)
         self.endScope()
