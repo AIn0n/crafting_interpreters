@@ -16,7 +16,7 @@ class FunctionType(Enum):
 class Resolver(VisitorExpr, VisitorStmt):
     def __init__(self, interpreter: Interpreter) -> None:
         self.interpreter = interpreter
-        self.scopes: list[MutableMapping[str, bool]] = []
+        self.scopes: list[MutableMapping[str, bool]] = [{}]
         self.current_function = FunctionType.NONE
 
     def visitExpression(self, stmt: Expression) -> None:
@@ -25,17 +25,17 @@ class Resolver(VisitorExpr, VisitorStmt):
     def visitIf(self, stmt: If) -> None:
         self.resolve(stmt.condition)
         self.resolve(stmt.then_branch)
-        if stmt.else_branch:
+        if stmt.else_branch is not None:
             self.resolve(stmt.else_branch)
 
     def visitPrint(self, stmt: Print) -> None:
         self.resolve(stmt.expression)
 
     def visitReturn(self, stmt: Return) -> None:
-        if self.current_function is FunctionType.NONE:
+        if self.current_function == FunctionType.NONE:
             raise Runtime_lox_error(stmt.keyword, "Can't return from top-level code")
 
-        if stmt.value:
+        if stmt.value is not None:
             self.resolve(stmt.value)
 
     def visitWhile(self, stmt: While) -> None:
@@ -108,7 +108,11 @@ class Resolver(VisitorExpr, VisitorStmt):
 
     def visitVariable(self, expr: Variable) -> None:
         peek = self.scope_peek()
-        if not self.scopes_empty() and expr.name.lexeme in  peek and not peek[expr.name.lexeme]:
+        if (
+            not self.scopes_empty()
+            and expr.name.lexeme in peek
+            and not peek[expr.name.lexeme]
+        ):
             raise Runtime_lox_error(
                 expr.name, "Can't read local variable in it's own initializer"
             )
@@ -134,13 +138,10 @@ class Resolver(VisitorExpr, VisitorStmt):
 
     def resolve(self, obj):
         if isinstance(obj, Sequence):
-            self.resolve_statements(obj)
+            for stmt in obj:
+                self.resolve(stmt)
         else:
             obj.accept(self)
-
-    def resolve_statements(self, statements):
-        for stmt in statements:
-            self.resolve(stmt)
 
     def visitBlock(self, stmt) -> None:
         self.beginScope()

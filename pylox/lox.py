@@ -25,7 +25,6 @@ class Lox:
             return
 
         self.interpreter.interpret(statements)
-        print(self.interpreter.local)
 
     def run_file(self, script_path: str):
         with open(script_path, "rt") as f:

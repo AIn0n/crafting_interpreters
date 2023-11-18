@@ -90,14 +90,16 @@ class Interpreter(VisitorExpr, VisitorStmt):
         value = self.evaluate(expr.value)
 
         dist: int = self.local[expr]
-        if dist:
+        if dist is not None:
             self.env.assignAt(dist, expr.name, value)
         else:
             self.globals.assign(expr.name, value)
 
     def lookUpVar(self, name: Token, expr: Expr) -> Any:
         dist = self.local[expr]
-        return self.env.getAt(dist, name.lexeme) if dist else self.globals.get(name)
+        if dist is not None:
+            return self.env.getAt(dist, name.lexeme)
+        return self.globals.get(name)
 
     def visitVariable(self, expr: Variable):
         return self.lookUpVar(expr.name, expr)
