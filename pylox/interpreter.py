@@ -9,6 +9,7 @@ from LoxCallable import LoxCallable
 from lox_function import LoxFunction
 from native_extensions import NativeClock
 from lox_return import ReturnException
+from lox_class import LoxClass
 
 
 class Interpreter(VisitorExpr, VisitorStmt):
@@ -18,6 +19,11 @@ class Interpreter(VisitorExpr, VisitorStmt):
         self.globals.define("clock", NativeClock)
         self.env = self.globals
         self.local: MutableMapping[Expr, int] = {}
+
+    def visitClass(self, stmt):
+        self.env.define(stmt.name.lexeme, None)
+        _class = LoxClass(stmt.name.lexeme)
+        self.env.assign(stmt.name, _class)
 
     def resolve(self, expr: Expr, depth: int):
         self.local[expr] = depth

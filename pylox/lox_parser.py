@@ -324,8 +324,22 @@ class Parser:
         body = self.block()
         return Function(name, parameters, body)
 
+    def class_declaration(self):
+        name = self.consume(TT.IDENTIFIER, "Expected class name.")
+        self.consume(TT.LEFT_BRACE, "Expect '{' before class body.")
+
+        methods = []
+        while not self.check(TT.RIGHT_BRACE) and not self.isAtEnd():
+            methods.append(self.function("method"))
+
+        self.consume(TT.RIGHT_BRACE, "Expected '}' after class body.")
+
+        return Class(name, methods)
+
     def declaration(self):
         try:
+            if self.match(TT.CLASS):
+                return self.class_declaration()
             if self.match(TT.FUN):
                 return self.function("function")
             if self.match(TT.VAR):

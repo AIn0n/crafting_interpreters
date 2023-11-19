@@ -84,6 +84,10 @@ class Resolver(VisitorExpr, VisitorStmt):
 
         self.resolve_function(stmt, FunctionType.FUNCTION)
 
+    def visitClass(self, stmt):
+        self.declare(stmt.name)
+        self.define(stmt.name)
+
     def visitAssign(self, expr: Assign) -> None:
         self.resolve(expr.value)
         self.resolve_local(expr, expr.name)
