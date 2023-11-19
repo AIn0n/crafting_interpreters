@@ -19,6 +19,9 @@ class Resolver(VisitorExpr, VisitorStmt):
         self.scopes: list[MutableMapping[str, bool]] = [{}]
         self.current_function = FunctionType.NONE
 
+    def visitGet(self, expr: Get):
+        self.resolve(expr.object)
+
     def visitExpression(self, stmt: Expression) -> None:
         self.resolve(stmt.expression)
 

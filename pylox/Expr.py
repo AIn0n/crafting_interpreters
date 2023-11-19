@@ -21,6 +21,10 @@ class VisitorExpr(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def visitGet(self, expr):
+        pass
+
+    @abc.abstractmethod
     def visitGrouping(self, expr):
         pass
 
@@ -59,6 +63,12 @@ class Call(Expr):
         self.callee = callee
         self.paren = paren
         self.arguments = arguments
+
+
+class Get(Expr):
+    def __init__(self, object, name):
+        self.object = object
+        self.name = name
 
 
 class Grouping(Expr):

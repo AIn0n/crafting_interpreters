@@ -10,6 +10,7 @@ from lox_function import LoxFunction
 from native_extensions import NativeClock
 from lox_return import ReturnException
 from lox_class import LoxClass
+from lox_instance import LoxInstance
 
 
 class Interpreter(VisitorExpr, VisitorStmt):
@@ -19,6 +20,13 @@ class Interpreter(VisitorExpr, VisitorStmt):
         self.globals.define("clock", NativeClock)
         self.env = self.globals
         self.local: MutableMapping[Expr, int] = {}
+
+    def visitGet(self, expr: Get):
+        obj = self.evaluate(expr.object)
+        if isinstance(obj, LoxInstance):
+            return obj.get(expr.name)
+
+        raise Runtime_lox_error(expr.name, "Only instances have property")
 
     def visitClass(self, stmt):
         self.env.define(stmt.name.lexeme, None)

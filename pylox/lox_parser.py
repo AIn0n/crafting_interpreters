@@ -130,6 +130,11 @@ class Parser:
         while True:
             if self.match(TT.LEFT_PAREN):
                 expr = self.finish_call(expr)
+            elif self.match(TT.DOT):
+                name = self.consume(
+                    TT.IDENTIFIER, "Expected property name after the dot."
+                )
+                expr = Get(expr, name)
             else:
                 break
 
