@@ -37,6 +37,10 @@ class VisitorExpr(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def visitSet(self, expr):
+        pass
+
+    @abc.abstractmethod
     def visitUnary(self, expr):
         pass
 
@@ -86,6 +90,13 @@ class Logical(Expr):
         self.left = left
         self.operator = operator
         self.right = right
+
+
+class Set(Expr):
+    def __init__(self, obj, name, value):
+        self.obj = obj
+        self.name = name
+        self.value = value
 
 
 class Unary(Expr):

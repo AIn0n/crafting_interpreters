@@ -21,6 +21,16 @@ class Interpreter(VisitorExpr, VisitorStmt):
         self.env = self.globals
         self.local: MutableMapping[Expr, int] = {}
 
+    def visitSet(self, expr: Set):
+        obj = self.evaluate(expr.obj)
+
+        if not isinstance(obj, LoxInstance):
+            raise Runtime_lox_error(expr.name, "Only instances have fields.")
+
+        value = self.evaluate(expr.name)
+        obj.set(expr.name, value)
+        return value
+
     def visitGet(self, expr: Get):
         obj = self.evaluate(expr.object)
         if isinstance(obj, LoxInstance):

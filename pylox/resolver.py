@@ -19,6 +19,10 @@ class Resolver(VisitorExpr, VisitorStmt):
         self.scopes: list[MutableMapping[str, bool]] = [{}]
         self.current_function = FunctionType.NONE
 
+    def visitSet(self, expr: Set):
+        self.resolve(expr.value)
+        self.resolve(expr.obj)
+
     def visitGet(self, expr: Get):
         self.resolve(expr.object)
 

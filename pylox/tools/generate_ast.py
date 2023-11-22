@@ -44,6 +44,7 @@ def main(output: str) -> None:
             "Grouping:expression",
             "Literal:value",
             "Logical:left, operator, right",
+            "Set:obj, name, value",
             "Unary:operator, right",
             "Variable:name",
         ],
