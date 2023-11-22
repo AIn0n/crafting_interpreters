@@ -38,9 +38,15 @@ class Interpreter(VisitorExpr, VisitorStmt):
 
         raise Runtime_lox_error(expr.name, "Only instances have property")
 
-    def visitClass(self, stmt):
+    def visitClass(self, stmt: Class):
         self.env.define(stmt.name.lexeme, None)
-        _class = LoxClass(stmt.name.lexeme)
+
+        methods = {}
+        for method in stmt.methods:
+            func = LoxFunction(method, self.env)
+            methods[method.name.lexeme] = func
+
+        _class = LoxClass(stmt.name.lexeme, methods)
         self.env.assign(stmt.name, _class)
 
     def resolve(self, expr: Expr, depth: int):

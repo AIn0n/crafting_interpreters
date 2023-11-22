@@ -11,6 +11,7 @@ from enum import Enum, auto
 class FunctionType(Enum):
     NONE = auto()
     FUNCTION = auto()
+    METHOD = auto()
 
 
 class Resolver(VisitorExpr, VisitorStmt):
@@ -91,9 +92,13 @@ class Resolver(VisitorExpr, VisitorStmt):
 
         self.resolve_function(stmt, FunctionType.FUNCTION)
 
-    def visitClass(self, stmt):
+    def visitClass(self, stmt: Class):
         self.declare(stmt.name)
         self.define(stmt.name)
+
+        for method in stmt.methods:
+            declaration = FunctionType.METHOD
+            self.resolve_function(method, declaration)
 
     def visitAssign(self, expr: Assign) -> None:
         self.resolve(expr.value)
