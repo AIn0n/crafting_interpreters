@@ -167,6 +167,9 @@ class Parser:
             self.consume(TT.RIGHT_PAREN, "Expect ')' after expression.")
             return Grouping(expr)
 
+        if self.match(TT.THIS):
+            return This(self.previous())
+
         if self.match(TT.IDENTIFIER):
             return Variable(self.previous())
 

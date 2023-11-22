@@ -41,6 +41,10 @@ class VisitorExpr(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def visitThis(self, expr):
+        pass
+
+    @abc.abstractmethod
     def visitUnary(self, expr):
         pass
 
@@ -97,6 +101,11 @@ class Set(Expr):
         self.obj = obj
         self.name = name
         self.value = value
+
+
+class This(Expr):
+    def __init__(self, keyword):
+        self.keyword = keyword
 
 
 class Unary(Expr):

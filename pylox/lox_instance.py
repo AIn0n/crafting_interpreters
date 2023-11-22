@@ -14,7 +14,7 @@ class LoxInstance:
 
         method = self._class.find_method(name.lexeme)
         if method is not None:
-            return method
+            return method.bind(self)
 
         raise Runtime_lox_error(name, f"Undefined property '{name.lexeme}'.")
 

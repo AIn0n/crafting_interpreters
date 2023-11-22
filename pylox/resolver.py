@@ -20,6 +20,9 @@ class Resolver(VisitorExpr, VisitorStmt):
         self.scopes: list[MutableMapping[str, bool]] = [{}]
         self.current_function = FunctionType.NONE
 
+    def visitThis(self, expr: This):
+        self.resolve_local(expr, expr.keyword)
+
     def visitSet(self, expr: Set):
         self.resolve(expr.value)
         self.resolve(expr.obj)
@@ -96,9 +99,14 @@ class Resolver(VisitorExpr, VisitorStmt):
         self.declare(stmt.name)
         self.define(stmt.name)
 
+        self.beginScope()
+        self.scopes[-1]["this"] = True
+
         for method in stmt.methods:
             declaration = FunctionType.METHOD
             self.resolve_function(method, declaration)
+
+        self.endScope()
 
     def visitAssign(self, expr: Assign) -> None:
         self.resolve(expr.value)

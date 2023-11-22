@@ -21,6 +21,9 @@ class Interpreter(VisitorExpr, VisitorStmt):
         self.env = self.globals
         self.local: MutableMapping[Expr, int] = {}
 
+    def visitThis(self, expr: This):
+        return self.lookUpVar(expr.keyword, expr)
+
     def visitSet(self, expr: Set):
         obj = self.evaluate(expr.obj)
 
