@@ -27,7 +27,7 @@ class Interpreter(VisitorExpr, VisitorStmt):
         if not isinstance(obj, LoxInstance):
             raise Runtime_lox_error(expr.name, "Only instances have fields.")
 
-        value = self.evaluate(expr.name)
+        value = self.evaluate(expr.value)
         obj.set(expr.name, value)
         return value
 

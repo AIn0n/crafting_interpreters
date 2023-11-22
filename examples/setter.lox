@@ -1,0 +1,7 @@
+class Bagel {}
+
+var bagel = Bagel();
+
+bagel.flour = 1 + 7;
+
+print bagel.flour; // Prints 1.
