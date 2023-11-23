@@ -2,7 +2,7 @@ from LoxCallable import LoxCallable
 from lox_instance import LoxInstance
 from lox_function import LoxFunction
 
-from typing import MutableMapping, Optional
+from typing import MutableMapping, Optional, Iterable
 
 
 class LoxClass(LoxCallable):
@@ -20,7 +20,15 @@ class LoxClass(LoxCallable):
         return None
 
     def arity(self) -> int:
-        return 0
+        initializer = self.find_method("init")
+        if initializer is None:
+            return 0
 
-    def call(self, interpreter, arguments: list):
-        return LoxInstance(self)
+        return initializer.arity()
+
+    def call(self, interpreter, arguments: Iterable):
+        instance = LoxInstance(self)
+        initalizer = self.find_method("init")
+        if initalizer is not None:
+            initalizer.bind(instance).call(interpreter, arguments)
+        return instance

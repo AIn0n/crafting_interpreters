@@ -1,0 +1,13 @@
+class DevonshireCream {
+  init(num) {
+    this.num = num;
+  }
+
+  serveOn() {
+    print this.num;
+  }
+}
+
+var instance = DevonshireCream("Stones");
+
+instance.serveOn();
