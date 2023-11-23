@@ -14,13 +14,23 @@ class FunctionType(Enum):
     METHOD = auto()
 
 
+class ClassType(Enum):
+    NONE = auto()
+    CLASS = auto()
+
+
 class Resolver(VisitorExpr, VisitorStmt):
     def __init__(self, interpreter: Interpreter) -> None:
         self.interpreter = interpreter
         self.scopes: list[MutableMapping[str, bool]] = [{}]
         self.current_function = FunctionType.NONE
+        self.current_class = ClassType.NONE
 
     def visitThis(self, expr: This):
+        if self.current_class == ClassType.NONE:
+            raise Runtime_lox_error(
+                expr.keyword, "Can't use 'this' outside the function."
+            )
         self.resolve_local(expr, expr.keyword)
 
     def visitSet(self, expr: Set):
@@ -96,6 +106,8 @@ class Resolver(VisitorExpr, VisitorStmt):
         self.resolve_function(stmt, FunctionType.FUNCTION)
 
     def visitClass(self, stmt: Class):
+        enclosing_class = self.current_class
+        self.current_class = ClassType.CLASS
         self.declare(stmt.name)
         self.define(stmt.name)
 
@@ -107,6 +119,7 @@ class Resolver(VisitorExpr, VisitorStmt):
             self.resolve_function(method, declaration)
 
         self.endScope()
+        self.current_class = enclosing_class
 
     def visitAssign(self, expr: Assign) -> None:
         self.resolve(expr.value)
