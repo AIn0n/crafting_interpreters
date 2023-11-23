@@ -6,14 +6,17 @@ from lox_return import ReturnException
 
 
 class LoxFunction(LoxCallable):
-    def __init__(self, declaration: Function, closure: Environment) -> None:
+    def __init__(
+        self, declaration: Function, closure: Environment, is_init: bool = False
+    ) -> None:
         self.declaration = declaration
         self.closure = closure
+        self.is_init = is_init
 
     def bind(self, instance: LoxInstance):
         env = Environment(self.closure)
         env.define("this", instance)
-        return LoxFunction(self.declaration, env)
+        return LoxFunction(self.declaration, env, self.is_init)
 
     def call(self, interpreter, arguments: list):
         environment = Environment(self.closure)
@@ -25,6 +28,8 @@ class LoxFunction(LoxCallable):
         except ReturnException as e:
             return e.value
 
+        if self.is_init:
+            return self.closure.getAt(0, "this")
         return None
 
     def arity(self) -> int:

@@ -46,7 +46,7 @@ class Interpreter(VisitorExpr, VisitorStmt):
 
         methods = {}
         for method in stmt.methods:
-            func = LoxFunction(method, self.env)
+            func = LoxFunction(method, self.env, method.name.lexeme == "init")
             methods[method.name.lexeme] = func
 
         _class = LoxClass(stmt.name.lexeme, methods)
