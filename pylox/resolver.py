@@ -12,6 +12,7 @@ class FunctionType(Enum):
     NONE = auto()
     FUNCTION = auto()
     METHOD = auto()
+    INITIALIZER = auto()
 
 
 class ClassType(Enum):
@@ -55,6 +56,10 @@ class Resolver(VisitorExpr, VisitorStmt):
     def visitReturn(self, stmt: Return) -> None:
         if self.current_function == FunctionType.NONE:
             raise Runtime_lox_error(stmt.keyword, "Can't return from top-level code")
+        if self.current_function == FunctionType.INITIALIZER:
+            raise Runtime_lox_error(
+                stmt.keyword, "Can't return value from countructor."
+            )
 
         if stmt.value is not None:
             self.resolve(stmt.value)
@@ -116,6 +121,8 @@ class Resolver(VisitorExpr, VisitorStmt):
 
         for method in stmt.methods:
             declaration = FunctionType.METHOD
+            if method.name.lexeme == "init":
+                declaration = FunctionType.INITIALIZER
             self.resolve_function(method, declaration)
 
         self.endScope()
