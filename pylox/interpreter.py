@@ -42,6 +42,15 @@ class Interpreter(VisitorExpr, VisitorStmt):
         raise Runtime_lox_error(expr.name, "Only instances have property")
 
     def visitClass(self, stmt: Class):
+        superclass = None
+
+        if stmt.superclass is not None:
+            superclass = self.evaluate(stmt.superclass)
+            if not isinstance(superclass, LoxClass):
+                raise Runtime_lox_error(
+                    stmt.superclass.name, "Superclass must be a class."
+                )
+
         self.env.define(stmt.name.lexeme, None)
 
         methods = {}
@@ -49,7 +58,7 @@ class Interpreter(VisitorExpr, VisitorStmt):
             func = LoxFunction(method, self.env, method.name.lexeme == "init")
             methods[method.name.lexeme] = func
 
-        _class = LoxClass(stmt.name.lexeme, methods)
+        _class = LoxClass(stmt.name.lexeme, superclass, methods)
         self.env.assign(stmt.name, _class)
 
     def resolve(self, expr: Expr, depth: int):

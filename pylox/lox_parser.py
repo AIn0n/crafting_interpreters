@@ -337,6 +337,13 @@ class Parser:
 
     def class_declaration(self):
         name = self.consume(TT.IDENTIFIER, "Expected class name.")
+
+        superclass = None
+
+        if self.match(TT.LESS):
+            self.consume(TT.IDENTIFIER, "Expected superclass name.")
+            superclass = self.previous()
+
         self.consume(TT.LEFT_BRACE, "Expect '{' before class body.")
 
         methods = []
@@ -345,7 +352,7 @@ class Parser:
 
         self.consume(TT.RIGHT_BRACE, "Expected '}' after class body.")
 
-        return Class(name, methods)
+        return Class(name, superclass, methods)
 
     def declaration(self):
         try:

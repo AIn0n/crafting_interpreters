@@ -51,8 +51,9 @@ class Block(Stmt):
 
 
 class Class(Stmt):
-    def __init__(self, name, methods):
+    def __init__(self, name, superclass, methods):
         self.name = name
+        self.superclass = superclass
         self.methods = methods
 
 
