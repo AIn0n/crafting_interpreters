@@ -342,7 +342,7 @@ class Parser:
 
         if self.match(TT.LESS):
             self.consume(TT.IDENTIFIER, "Expected superclass name.")
-            superclass = self.previous()
+            superclass = Variable(self.previous())
 
         self.consume(TT.LEFT_BRACE, "Expect '{' before class body.")
 
