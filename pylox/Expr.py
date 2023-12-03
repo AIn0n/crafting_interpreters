@@ -41,6 +41,10 @@ class VisitorExpr(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def visitSuper(self, expr):
+        pass
+
+    @abc.abstractmethod
     def visitThis(self, expr):
         pass
 
@@ -101,6 +105,12 @@ class Set(Expr):
         self.obj = obj
         self.name = name
         self.value = value
+
+
+class Super(Expr):
+    def __init__(self, keyword, method):
+        self.keyword = keyword
+        self.method = method
 
 
 class This(Expr):

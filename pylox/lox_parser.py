@@ -167,6 +167,12 @@ class Parser:
             self.consume(TT.RIGHT_PAREN, "Expect ')' after expression.")
             return Grouping(expr)
 
+        if self.match(TT.SUPER):
+            keyword = self.previous()
+            self.consume(TT.DOT, "Expected . after super keyword.")
+            method = self.consume(TT.IDENTIFIER, "Expect superclass method name")
+            return Super(keyword, method)
+
         if self.match(TT.THIS):
             return This(self.previous())
 
