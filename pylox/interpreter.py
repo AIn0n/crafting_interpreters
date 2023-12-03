@@ -21,6 +21,21 @@ class Interpreter(VisitorExpr, VisitorStmt):
         self.env = self.globals
         self.local: MutableMapping[Expr, int] = {}
 
+    def visitSuper(self, expr: Super):
+        dist = self.local[expr]
+        superclass = self.env.getAt(dist, "super")
+
+        obj = self.env.getAt(dist - 1, "this")
+
+        method = superclass.find_method(expr.method.lexeme)
+
+        if method is None:
+            Runtime_lox_error(
+                expr.method, f"Undefined property '{expr.method.lexeme}'."
+            )
+
+        return method.bind(obj)
+
     def visitThis(self, expr: This):
         return self.lookUpVar(expr.keyword, expr)
 
@@ -53,12 +68,20 @@ class Interpreter(VisitorExpr, VisitorStmt):
 
         self.env.define(stmt.name.lexeme, None)
 
+        if stmt.superclass is not None:
+            self.env = Environment(self.env)
+            self.env.define("super", superclass)
+
         methods = {}
         for method in stmt.methods:
             func = LoxFunction(method, self.env, method.name.lexeme == "init")
             methods[method.name.lexeme] = func
 
         _class = LoxClass(stmt.name.lexeme, superclass, methods)
+
+        if stmt.superclass is not None:
+            self.env = self.env.enclosing
+
         self.env.assign(stmt.name, _class)
 
     def resolve(self, expr: Expr, depth: int):

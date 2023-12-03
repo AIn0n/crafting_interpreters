@@ -123,6 +123,8 @@ class Resolver(VisitorExpr, VisitorStmt):
                 )
 
             self.resolve(stmt.superclass)
+            self.beginScope()
+            self.scopes[-1]["super"] = True
 
         self.beginScope()
         self.scopes[-1]["this"] = True
@@ -134,7 +136,14 @@ class Resolver(VisitorExpr, VisitorStmt):
             self.resolve_function(method, declaration)
 
         self.endScope()
+
+        if stmt.superclass is not None:
+            self.endScope()
+
         self.current_class = enclosing_class
+
+    def visitSuper(self, expr: Super) -> None:
+        self.resolve_local(expr, expr.keyword)
 
     def visitAssign(self, expr: Assign) -> None:
         self.resolve(expr.value)
