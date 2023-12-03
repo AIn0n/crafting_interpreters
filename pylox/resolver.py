@@ -18,7 +18,7 @@ class FunctionType(Enum):
 class ClassType(Enum):
     NONE = auto()
     CLASS = auto()
-    SUBCLASS= auto()
+    SUBCLASS = auto()
 
 
 class Resolver(VisitorExpr, VisitorStmt):
@@ -146,7 +146,9 @@ class Resolver(VisitorExpr, VisitorStmt):
 
     def visitSuper(self, expr: Super) -> None:
         if self.current_class != ClassType.SUBCLASS:
-            raise Runtime_lox_error(expr.keyword, "Cannot use super in other case than in subclass.")
+            raise Runtime_lox_error(
+                expr.keyword, "Cannot use super in other case than in subclass."
+            )
 
         self.resolve_local(expr, expr.keyword)
 
