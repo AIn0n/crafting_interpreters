@@ -5,3 +5,5 @@ class Bacon {
 }
 
 Bacon().eat(); // Prints "Crunch crunch crunch!".
+
+super.method();

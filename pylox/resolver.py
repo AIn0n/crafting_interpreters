@@ -18,6 +18,7 @@ class FunctionType(Enum):
 class ClassType(Enum):
     NONE = auto()
     CLASS = auto()
+    SUBCLASS= auto()
 
 
 class Resolver(VisitorExpr, VisitorStmt):
@@ -117,6 +118,7 @@ class Resolver(VisitorExpr, VisitorStmt):
         self.define(stmt.name)
 
         if stmt.superclass is not None:
+            self.current_class = ClassType.SUBCLASS
             if stmt.superclass.name.lexeme == stmt.name.lexeme:
                 raise Runtime_lox_error(
                     stmt.superclass.name, "A class can't inherit from itself"
@@ -143,6 +145,9 @@ class Resolver(VisitorExpr, VisitorStmt):
         self.current_class = enclosing_class
 
     def visitSuper(self, expr: Super) -> None:
+        if self.current_class != ClassType.SUBCLASS:
+            raise Runtime_lox_error(expr.keyword, "Cannot use super in other case than in subclass.")
+
         self.resolve_local(expr, expr.keyword)
 
     def visitAssign(self, expr: Assign) -> None:
