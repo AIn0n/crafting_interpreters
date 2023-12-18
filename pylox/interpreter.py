@@ -17,7 +17,7 @@ class Interpreter(VisitorExpr, VisitorStmt):
     def __init__(self) -> None:
         super().__init__()
         self.globals = Environment()
-        self.globals.define("clock", NativeClock)
+        self.globals.define("clock", NativeClock())
         self.env = self.globals
         self.local: MutableMapping[Expr, int] = {}
 
@@ -161,10 +161,12 @@ class Interpreter(VisitorExpr, VisitorStmt):
             self.globals.assign(expr.name, value)
 
     def lookUpVar(self, name: Token, expr: Expr) -> Any:
-        dist = self.local[expr]
-        if dist is not None:
-            return self.env.getAt(dist, name.lexeme)
-        return self.globals.get(name)
+        try:
+            dist = self.local[expr]
+        except KeyError as e:
+            return self.globals.get(name)
+
+        return self.env.getAt(dist, name.lexeme)
 
     def visitVariable(self, expr: Variable):
         return self.lookUpVar(expr.name, expr)
