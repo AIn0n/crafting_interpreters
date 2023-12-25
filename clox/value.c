@@ -34,3 +34,9 @@ free_val_array(Value_array *array)
 	FREE_ARRAY(Value, array->values, array->capacity);
 	init_val_array(array);
 }
+
+void
+print_val(Value val)
+{
+	printf("%g", val);
+}

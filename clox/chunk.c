@@ -26,7 +26,7 @@ int
 add_constant(Chunk* chunk, Value value)
 {
 	write_val_array(&chunk->constants, value);
-	return chunk->count - 1;
+	return chunk->constants.count - 1;
 }
 
 void
