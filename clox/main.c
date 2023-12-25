@@ -10,10 +10,10 @@ main(int argc, const char* argv[])
 
 	/* index to place in constant table where 1.2 will be stored */
 	int constant_idx = add_constant(&chunk, 1.2);
-	write_chunk(&chunk, OP_CONSTANT);
-	write_chunk(&chunk, constant_idx);
+	write_chunk(&chunk, OP_CONSTANT, 123);
+	write_chunk(&chunk, constant_idx, 123);
 
-	write_chunk(&chunk, OP_RETURN);
+	write_chunk(&chunk, OP_RETURN, 123);
 
 	disassemble_chunk(&chunk, "test chunk");
 	free_chunk(&chunk);
