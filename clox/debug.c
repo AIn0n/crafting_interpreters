@@ -21,6 +21,20 @@ constant_instruction(const char *name, Chunk *chunk, int offset)
 	return offset + 2;
 }
 
+static int
+long_const_instr(const char* name, Chunk *chunk, int offset)
+{
+	int constant_idx = 0;
+	++offset;
+	for (int n = 0; n < CONST_IDX_BYTES; ++n, ++offset) {
+		constant_idx += chunk->code[offset]  << (n * 8);
+	}
+	printf("%-16s %4d '", name, constant_idx);
+	print_val(chunk->constants.values[constant_idx]);
+	puts("'");
+	return offset;
+}
+
 int
 disassemble_instr(Chunk *chunk, int offset)
 {
@@ -32,6 +46,8 @@ disassemble_instr(Chunk *chunk, int offset)
 
 	uint8_t instruction = chunk->code[offset];
 	switch (instruction) {
+	case OP_CONSTANT_LONG:
+		return long_const_instr("OP_CONSTANT_LONG", chunk, offset);
 	case OP_CONSTANT:
 		return constant_instruction("OP_CONSTANT", chunk, offset);
 	case OP_RETURN:

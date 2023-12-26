@@ -8,14 +8,10 @@ main(int argc, const char* argv[])
 	Chunk chunk;
 	init_chunk(&chunk);
 
-	/* index to place in constant table where 1.2 will be stored */
-	int constant_idx = add_constant(&chunk, 1.2);
-	write_chunk(&chunk, OP_CONSTANT, 123);
-	write_chunk(&chunk, constant_idx, 123);
+	for (int i = 0; i < 257; ++i) {
+		write_constant(&chunk, i + 0.5, 0);
+	}
 
-	write_chunk(&chunk, OP_RETURN, 70);
-	write_chunk(&chunk, OP_RETURN, 200);
-	write_chunk(&chunk, OP_RETURN, 400);
 	write_chunk(&chunk, OP_RETURN, 600);
 
 	disassemble_chunk(&chunk, "test chunk");

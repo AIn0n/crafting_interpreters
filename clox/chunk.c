@@ -39,3 +39,17 @@ free_chunk(Chunk *chunk)
 	init_chunk(chunk);
 	free_rle_table(&chunk->lines);
 }
+
+void
+write_constant(Chunk *chunk, const Value value, const int line)
+{
+	int idx = add_constant(chunk, value);
+	if (idx > 255) {
+		write_chunk(chunk, OP_CONSTANT_LONG, line);
+		for (int n = 0, tmp = idx; n < CONST_IDX_BYTES; ++n, tmp >>= 8)
+			write_chunk(chunk, tmp & 0xFF, line);
+		return;
+	}
+	write_chunk(chunk, OP_CONSTANT, line);
+	write_chunk(chunk, idx, line);
+}

@@ -5,8 +5,11 @@
 #include "value.h"
 #include "rle.h"
 
+#define CONST_IDX_BYTES 3
+
 typedef enum {
     OP_CONSTANT,
+    OP_CONSTANT_LONG,
     OP_RETURN
 } Op_code;
 
@@ -23,5 +26,7 @@ void init_chunk(Chunk *chunk);
 void write_chunk(Chunk *chunk, uint8_t byte, int line);
 int add_constant(Chunk* chunk, Value value);
 void free_chunk(Chunk *chunk);
+
+void write_constant(Chunk *chunk, const Value value, const int line);
 
 #endif
