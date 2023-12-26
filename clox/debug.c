@@ -2,6 +2,7 @@
 
 #include "debug.h"
 #include "value.h"
+#include "rle.h"
 
 static int
 simple_instruction(const char *name, int offset)
@@ -25,11 +26,9 @@ disassemble_instr(Chunk *chunk, int offset)
 {
 	printf("%04d ", offset);
 
-	if (offset > 0 && chunk->lines[offset] == chunk->lines[offset - 1]) {
-		printf("   | ");
-	} else {
-		printf("%4d ", chunk->lines[offset]);
-	}
+	int line = get_val_by_idx(&chunk->lines, offset);
+
+	printf("%4d ", line);
 
 	uint8_t instruction = chunk->code[offset];
 	switch (instruction) {
