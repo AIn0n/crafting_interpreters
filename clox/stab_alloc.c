@@ -50,15 +50,15 @@ salloc_by_idx(Stab_data *d, const uint16_t idx, const size_t size)
 void*
 salloc(Stab_data *data, size_t size)
 {
-	int block_needed = ceil_blocks(size);
-	printf("--- needed blocks = %i\n", block_needed);
-
+	const int block_needed = ceil_blocks(size);
+	/**
+	 * What would be good to do here, is to make some sort of partitioning,
+	 * choosing spots for new allocated pointers somewhere in the middle of 
+	 * longest continous free block. Right now I'm leaving this right here.
+	 */
 	const int addr = find_free_block(data->len, block_needed);
-
 	salloc_by_idx(data, addr, block_needed);
 
-	printf("--- found free %i\n", addr);
-	printf("--- picked addr %llu\n", (uint64_t) data->mem + addr * BLOCK_SIZE);
 	return data->mem + addr * BLOCK_SIZE;
 }
 
@@ -80,16 +80,14 @@ srealloc(Stab_data *d, void *ptr, size_t new_size)
 	const uint16_t idx = retrieve_block(d, (uint64_t) ptr);
 	const uint16_t size = retrieve_size(d, idx);
 	const int diff = new_size - size * BLOCK_SIZE;
-	
-	printf("(realloc) diff = %i\n", diff);
+
 	// case where needed memory is less than we actually have
 	if (diff < 0) {
 		if (size == 1)
 			return ptr;
 		// free all blocks
-		for (int n = 0; n < size; ++n) {
+		for (int n = 0; n < size; ++n)
 			d->len[n + idx] = 0;
-		}
 		// compute new size and realloc the blocks
 		const int new_size = size - floor_blocks(abs(diff));
 		salloc_by_idx(d, idx, new_size);
@@ -97,7 +95,6 @@ srealloc(Stab_data *d, void *ptr, size_t new_size)
 	}
 
 	const int diff_blocks = ceil_blocks(diff);
-	printf("(realloc) diff blocks = %i\n", diff_blocks);
 
 	int free_count = 0;
 	// check if next block after current one are free
@@ -122,9 +119,7 @@ sfree(Stab_data *data, const void *ptr)
 {
 	const uint64_t addr = (uint64_t) ptr;
 	uint16_t idx = retrieve_block(data, addr);
-	printf("(free) found block = %i\n", idx);
 	uint16_t size = retrieve_size(data, idx);
-	printf("(free) block size = %i\n", size);
 	for (uint16_t n = 0; n < size; ++n) {
 		data->len[n + idx] = 0;
 	}
