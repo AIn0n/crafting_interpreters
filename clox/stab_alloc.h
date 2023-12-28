@@ -19,7 +19,8 @@ Stab_data;
 
 
 Stab_data init_stab(void);
-uint64_t salloc(Stab_data *data, size_t size);
+void* salloc(Stab_data *data, size_t size);
 void sfree(Stab_data *data, const void *addr);
+void* srealloc(Stab_data *d, void *ptr, size_t new_size);
 
 #endif

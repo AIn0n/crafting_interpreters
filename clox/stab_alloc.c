@@ -1,6 +1,7 @@
 #include "stab_alloc.h"
 #include<math.h>
 #include<stdio.h>
+#include<stdlib.h>
 
 Stab_data
 init_stab(void)
@@ -26,23 +27,39 @@ find_free_block(const uint16_t *len, const int size)
 	return -1;
 }
 
-uint64_t
+static int
+ceil_blocks(const size_t size)
+{
+	return ceil((size + 0.0) / BLOCK_SIZE);
+}
+
+static int
+floor_blocks(const size_t size)
+{
+	return size / BLOCK_SIZE;
+}
+
+static void
+salloc_by_idx(Stab_data *d, const uint16_t idx, const size_t size)
+{
+	d->len[idx] = PICK_MASK + size;
+	for (int n = 1; n < size; ++n)
+		d->len[idx + n] = PICK_MASK;
+}
+
+void*
 salloc(Stab_data *data, size_t size)
 {
-	int block_needed = ceil((size + 0.0) / BLOCK_SIZE);
+	int block_needed = ceil_blocks(size);
 	printf("--- needed blocks = %i\n", block_needed);
 
 	const int addr = find_free_block(data->len, block_needed);
 
-	data->len[addr] = PICK_MASK + block_needed;
-	for (int n = 1; n < block_needed; ++n) {
-		data->len[addr + n] = PICK_MASK;
-	}
-
+	salloc_by_idx(data, addr, block_needed);
 
 	printf("--- found free %i\n", addr);
 	printf("--- picked addr %llu\n", (uint64_t) data->mem + addr * BLOCK_SIZE);
-	return (uint64_t) data->mem + addr * BLOCK_SIZE;
+	return data->mem + addr * BLOCK_SIZE;
 }
 
 static uint16_t
@@ -60,17 +77,44 @@ retrieve_size(const Stab_data *d, const uint16_t idx)
 void *
 srealloc(Stab_data *d, void *ptr, size_t new_size)
 {
-	const uint64_t _ptr = (uint64_t) ptr;
-	const uint16_t idx = retrieve_block(d, _ptr);
+	const uint16_t idx = retrieve_block(d, (uint64_t) ptr);
 	const uint16_t size = retrieve_size(d, idx);
-	if (new_size <= size * BLOCK_SIZE)
-		return ptr;
+	const int diff = new_size - size * BLOCK_SIZE;
 	
-	for (int n = idx + size; n < NUM_BLOCKS; ++n) {
-
+	printf("(realloc) diff = %i\n", diff);
+	// case where needed memory is less than we actually have
+	if (diff < 0) {
+		if (size == 1)
+			return ptr;
+		// free all blocks
+		for (int n = 0; n < size; ++n) {
+			d->len[n + idx] = 0;
+		}
+		// compute new size and realloc the blocks
+		const int new_size = size - floor_blocks(abs(diff));
+		salloc_by_idx(d, idx, new_size);
+		return ptr;
 	}
 
-	return 0;
+	const int diff_blocks = ceil_blocks(diff);
+	printf("(realloc) diff blocks = %i\n", diff_blocks);
+
+	int free_count = 0;
+	// check if next block after current one are free
+	for (int n = idx + size; n < NUM_BLOCKS; ++n) {
+		if (d->len[n] & PICK_MASK)
+			break;
+		else if (++free_count == diff_blocks) {
+			salloc_by_idx(d, idx, size + diff_blocks);
+			return ptr;
+		}
+	}
+
+	/** at this point we are sure that we looking for bigger address and nearby blocks
+	 *  are already allocated
+	 */
+	sfree(d, ptr);
+	return salloc(d, new_size);
 }
 
 void

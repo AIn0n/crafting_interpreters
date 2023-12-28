@@ -15,7 +15,11 @@ main(void)
 	}
 	puts("");
 
+	puts("realloc");
+
 	int *b = (int *) salloc(&alloc, sizeof(*b) * 20);
+
+	a = (int *) srealloc(&alloc, a, sizeof(*a) * 200);
 
 	for (int n = 0; n < 8; ++n) {
 		printf("%i ", alloc.len[n]);
@@ -24,6 +28,6 @@ main(void)
 
 
 	sfree(&alloc, a);
-	sfree(&alloc, b);
+	//sfree(&alloc, b);
 
 }
