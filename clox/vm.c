@@ -61,6 +61,9 @@ run()
 			push(constant);
 			break;
 		}
+		case OP_NEGATE:
+			push(-pop());
+			break;
 		case OP_RETURN:
 			print_val(pop());
 			puts("");

@@ -14,6 +14,7 @@ main(int argc, const char* argv[])
 	int constant_idx = add_constant(&chunk, 1.2);
 	write_chunk(&chunk, OP_CONSTANT, 123);
 	write_chunk(&chunk, constant_idx, 123);
+	write_chunk(&chunk, OP_NEGATE, 123);
 
 	write_chunk(&chunk, OP_RETURN, 123);
 
