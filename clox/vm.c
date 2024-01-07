@@ -6,8 +6,33 @@
 
 VM vm;
 
-void initVM() {}
+static void
+reset_stack()
+{
+	vm.stack_top = vm.stack;
+}
+
+void
+initVM() 
+{
+	reset_stack();
+}
+
 void freeVM() {}
+
+void
+push(Value val)
+{
+	*vm.stack_top = val;
+	vm.stack_top++;
+}
+
+Value
+pop(void)
+{
+	vm.stack_top--;
+	return *vm.stack_top;
+}
 
 static Interpret_res
 run()
