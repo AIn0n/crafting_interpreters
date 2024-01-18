@@ -15,23 +15,14 @@ main(int argc, const char* argv[])
 
 	write_chunk(&chunk, OP_CONSTANT, 123);
 	write_chunk(&chunk, constant_idx, 123);
-	constant_idx = add_constant(&chunk, 3.4);
-	write_chunk(&chunk, OP_CONSTANT, 123);
-	write_chunk(&chunk, constant_idx, 123);
 
-	write_chunk(&chunk, OP_ADD, 123);
-
-	constant_idx = add_constant(&chunk, 5.6);
-	write_chunk(&chunk, OP_CONSTANT, 123);
-	write_chunk(&chunk, constant_idx, 123);
-
-	write_chunk(&chunk, OP_DIV, 123);
-
-	write_chunk(&chunk, OP_NEGATE, 123);
+	for (uint32_t i = 0; i < 400000001; ++i) {
+		write_chunk(&chunk, OP_NEGATE, 123);
+	}
 
 	write_chunk(&chunk, OP_RETURN, 123);
 
-	disassemble_chunk(&chunk, "test chunk");
+	//disassemble_chunk(&chunk, "test chunk");
 	interpret(&chunk);
 	freeVM();
 	free_chunk(&chunk);

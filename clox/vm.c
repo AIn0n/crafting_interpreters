@@ -47,19 +47,6 @@ run()
 	} while (false);
 
 	for (;;) {
-#ifdef DEBUG_TRACE_EXECUTION
-		/* stack printing segment of the code */
-		printf("          ");
-		for (Value* slot = vm.stack; slot < vm.stack_top; slot++) {
-			printf("[ ");
-			print_val(*slot);
-			printf(" ]");
-		}
-		puts("");
-
-		/* dissasembling every single instruction */
-		disassemble_instr(vm.chunk, (int)(vm.ip - vm.chunk->code));
-#endif
 		uint8_t instruction;
 		switch (instruction = READ_BYTE()) {
 		case OP_CONSTANT: {
@@ -68,7 +55,7 @@ run()
 			break;
 		}
 		case OP_NEGATE:
-			push(-pop());
+			*(vm.stack_top - 1) = - *(vm.stack_top - 1);
 			break;
 		case OP_ADD:
 			BINARY_OP(+);
