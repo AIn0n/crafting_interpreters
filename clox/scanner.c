@@ -64,9 +64,37 @@ static bool match(const char expected) {
 	return true;
 }
 
+static char 
+peek()
+{
+	return *scanner.curr;
+}
+
+static void
+skip_whitespaces() 
+{
+	for (;;) {
+		char c = peek();
+		switch (c) {
+		case ' ':
+		case '\r':
+		case '\t':
+			advance();
+			break;
+		case '\n':
+			advance();
+			scanner.line++;
+			break;
+		default:
+			return;
+		}
+	}
+}
+
 Token
 scan_token(void)
 {
+	skip_whitespaces();
 	scanner.start = scanner.curr;
 
 	if (is_at_end()) return make_token(TOKEN_EOF);
