@@ -106,6 +106,43 @@ skip_whitespaces()
 	}
 }
 
+static Token
+string()
+{
+	while (peek() != '"' && !is_at_end()) {
+		if (peek() == '\n')
+			scanner.line++;
+		advance();
+	}
+	if (is_at_end())
+		return error_token("Unterterminated string.");
+	
+	advance(); // consume closing bracket
+	return make_token(TOKEN_STRING);
+}
+
+static bool
+is_digit(const char c)
+{
+	return c >= '0' && c <= '9';
+}
+
+static Token
+number()
+{
+	while (is_digit(peek()))
+		advance();
+	
+	if (peek() == '.' && is_digit(peek_next())) {
+		advance();
+
+		while (is_digit(peek()))
+			advance();
+	}
+
+	return make_token(TOKEN_NUMBER);
+}
+
 Token
 scan_token(void)
 {
@@ -115,6 +152,10 @@ scan_token(void)
 	if (is_at_end()) return make_token(TOKEN_EOF);
 
 	char c = advance();
+
+	if (is_digit(c))
+		return number();
+
 	switch (c) {
 	case '(': 
 		return make_token(TOKEN_LEFT_PAREN);
@@ -146,6 +187,8 @@ scan_token(void)
 		return make_token(match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
 	case '>':
 		return make_token(match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
+	case '"':
+		return string();
 	}
 
 	return error_token("unexpected character");
