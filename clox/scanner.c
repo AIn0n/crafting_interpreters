@@ -70,6 +70,14 @@ peek()
 	return *scanner.curr;
 }
 
+static char
+peek_next()
+{
+	if (is_at_end())
+		return '\0';
+	return scanner.curr[1];
+}
+
 static void
 skip_whitespaces() 
 {
@@ -84,6 +92,13 @@ skip_whitespaces()
 		case '\n':
 			advance();
 			scanner.line++;
+			break;
+		case '/':
+			if (peek_next() == '/') {
+				while (peek() != '\n' && !is_at_end())
+					advance();
+			} else
+				return;
 			break;
 		default:
 			return;
