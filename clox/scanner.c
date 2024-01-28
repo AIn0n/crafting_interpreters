@@ -143,6 +143,26 @@ number()
 	return make_token(TOKEN_NUMBER);
 }
 
+static bool
+is_alpha(const char c)
+{
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+}
+
+static TokenType
+identifier_type()
+{
+	return TOKEN_IDENTIFIER;
+}
+
+static Token
+identifier()
+{
+	while (is_alpha(peek()) || is_digit(peek()))
+		advance();
+	return make_token(identifier_type());
+}
+
 Token
 scan_token(void)
 {
@@ -152,6 +172,9 @@ scan_token(void)
 	if (is_at_end()) return make_token(TOKEN_EOF);
 
 	char c = advance();
+
+	if (is_alpha(c))
+		return identifier();
 
 	if (is_digit(c))
 		return number();
