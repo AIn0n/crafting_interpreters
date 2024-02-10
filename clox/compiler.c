@@ -122,6 +122,31 @@ end_compiler()
 	emit_return();
 }
 
+static void
+binary()
+{
+	TokenType operator_type = parser.previous.type;
+	ParseRule *rule = get_rule(operator_type);
+	parse_precedence((Precedence)(rule->precedence + 1));
+	switch (operator_type)
+	{
+	case TOKEN_PLUS:
+		emit_byte(OP_ADD);
+		break;
+	case TOKEN_MINUS:
+		emit_byte(OP_SUB);
+		break;
+	case TOKEN_STAR:
+		emit_byte(OP_MUL);
+		break;
+	case TOKEN_SLASH:
+		emit_byte(OP_DIV);
+		break;
+	default:
+		return;
+	}
+}
+
 static void expression()
 {
 	parse_precedence(PREC_ASSIGNMENT);
@@ -157,7 +182,8 @@ unary()
 {
 	TokenType operator_type = parser.previous.type;
 	
-	expression(); // operand compiling
+
+	parse_precedence(PREC_UNARY);
 
 	switch (operator_type)
 	{
