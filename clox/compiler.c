@@ -137,7 +137,21 @@ static void parsePrecedence(Precedence precedence);
 static void
 parse_precedence(Precedence precedence)
 {
+	advance();
+	ParseFn prefix_rule = get_rule(parser.previous.type)->prefix;
+	if (prefix_rule == NULL) {
+		error("Expected expression.");
+		return;
+	}
 
+	prefix_rule();
+
+	while (precedence <= get_rule(parser.current.type)->precedence) {
+		advance();
+		ParseFn infix_rule = get_rule(parser.previous.type)->infix;
+
+		infix_rule();
+	}
 }
 
 static void
