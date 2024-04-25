@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <stdio.h>
 
 #include "common.h"
@@ -35,6 +36,27 @@ pop(void)
 	return *vm.stack_top;
 }
 
+static void
+runtime_error(const char *format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	vfprintf(stderr, format, args);
+	va_end(args);
+	fputs("\n", stderr);
+
+	size_t instruction = vm.ip - vm.chunk->code - 1;
+	int line = vm.chunk->lines[instruction];
+	fprintf(stderr, "[line %d] in script\n", line);
+	reset_stack();
+}
+
+static Value
+peek(int distance)
+{
+	return vm.stack_top[-1 - distance];
+}
+
 static Interpret_res
 run()
 {
@@ -69,7 +91,11 @@ run()
 			break;
 		}
 		case OP_NEGATE:
-			push(-pop());
+			if (IS_NUMBER(peek(0))) {
+				runtime_error("Operand must be a number.");
+				return INTERPRET_RUNTIME_ERROR;
+			}
+			push(AS_NUMBER(-NUMBER_VAL(pop())));
 			break;
 		case OP_ADD:
 			BINARY_OP(+);
