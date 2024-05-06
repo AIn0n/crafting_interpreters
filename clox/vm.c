@@ -62,12 +62,16 @@ run()
 {
 #define READ_BYTE() (*vm.ip++)
 #define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
-#define BINARY_OP(op)			\
-	do {				\
-		double b = pop();	\
-		double a = pop();	\
-		push(a op b);		\
-	} while (false);
+#define BINARY_OP(val_type, op)						\
+	do {								\
+		if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {	\
+			runtime_error("Operands must be numbers.");	\
+			return INTERPRET_RUNTIME_ERROR;			\
+		}							\
+		double a = AS_NUMBER(pop());				\
+		double b = AS_NUMBER(pop());				\
+		push(val_type(a op b));					\
+	} while (false)
 
 	for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
@@ -95,19 +99,19 @@ run()
 				runtime_error("Operand must be a number.");
 				return INTERPRET_RUNTIME_ERROR;
 			}
-			push(AS_NUMBER(-NUMBER_VAL(pop())));
+			push(NUMBER_VAL(-AS_NUMBER(pop())));
 			break;
 		case OP_ADD:
-			BINARY_OP(+);
+			BINARY_OP(NUMBER_VAL, +);
 			break;
 		case OP_SUB:
-			BINARY_OP(-);
+			BINARY_OP(NUMBER_VAL, -);
 			break;
 		case OP_MUL:
-			BINARY_OP(*);
+			BINARY_OP(NUMBER_VAL, *);
 			break;
 		case OP_DIV:
-			BINARY_OP(/);
+			BINARY_OP(NUMBER_VAL, /);
 			break;
 		case OP_RETURN:
 			print_val(pop());
