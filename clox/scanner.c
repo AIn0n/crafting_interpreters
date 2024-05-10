@@ -153,7 +153,7 @@ static TokenType
 check_keyword(int start, int length, const char *rest, TokenType type)
 {
 	if (scanner.curr - scanner.start == start + length 
-	&& memcmp(scanner.start + start, rest, length))
+	&& memcmp(scanner.start + start, rest, length) == 0)
 		return type;
 	return TOKEN_IDENTIFIER;
 }

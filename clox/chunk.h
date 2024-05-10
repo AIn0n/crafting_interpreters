@@ -8,10 +8,13 @@ typedef enum {
     OP_CONSTANT,
     OP_NEGATE,
     OP_ADD,
+    OP_NIL,
+    OP_TRUE,
+    OP_FALSE,
     OP_SUB,
     OP_MUL,
     OP_DIV,
-    OP_RETURN
+    OP_RETURN,
 } Op_code;
 
 typedef struct
