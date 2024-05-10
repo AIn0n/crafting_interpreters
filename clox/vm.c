@@ -57,6 +57,12 @@ peek(int distance)
 	return vm.stack_top[-1 - distance];
 }
 
+static bool
+isFalsey(Value value)
+{
+	return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
+}
+
 static Interpret_res
 run()
 {
@@ -122,6 +128,8 @@ run()
 		case OP_DIV:
 			BINARY_OP(NUMBER_VAL, /);
 			break;
+		case OP_NOT:
+			push(BOOL_VAL(isFalsey(pop())));
 		case OP_RETURN:
 			print_val(pop());
 			puts("");

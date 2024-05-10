@@ -53,6 +53,8 @@ disassemble_instr(Chunk *chunk, int offset)
 		return simple_instruction("OP_DIV", offset);
 	case OP_RETURN:
 		return simple_instruction("OP_RETURN", offset);
+	case OP_NOT:
+		return simple_instruction("OP_NOT", offset);
 	}
 	printf("Unknown opcode %d", instruction);
 	return offset + 1;
