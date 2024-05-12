@@ -55,6 +55,12 @@ disassemble_instr(Chunk *chunk, int offset)
 		return simple_instruction("OP_RETURN", offset);
 	case OP_NOT:
 		return simple_instruction("OP_NOT", offset);
+	case OP_EQUAL:
+		return simple_instruction("OP_EQUAL", offset);
+	case OP_GREATER:
+		return simple_instruction("OP_GREATER", offset);
+	case OP_LESS:
+		return simple_instruction("OP_LESS", offset);
 	}
 	printf("Unknown opcode %d", instruction);
 	return offset + 1;
