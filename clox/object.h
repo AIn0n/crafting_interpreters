@@ -25,6 +25,8 @@ struct ObjString {
     char *chars;
 };
 
+ObjString* copyString(char *, int);
+
 static inline bool
 isObjType(Value value, ObjType type)
 {
