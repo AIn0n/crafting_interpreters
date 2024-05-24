@@ -33,4 +33,9 @@ isObjType(Value value, ObjType type)
     return IS_OBJ(value) && AS_OBJ(value)->type == type;
 }
 
+#include <stdlib.h>
+
+void func() {
+    int *a = (int *) malloc(sizeof(*a) * 4);
+}
 #endif

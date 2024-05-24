@@ -1,7 +1,9 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "memory.h"
 #include "value.h"
+#include "object.h"
 
 void
 init_val_array(Value_array *array)
@@ -36,6 +38,16 @@ free_val_array(Value_array *array)
 }
 
 void
+print_object(Value val)
+{
+	switch (OBJ_TYPE(val)) {
+	case OBJ_STRING:
+		printf("%s", AS_CSTRING(val));
+		break;
+	}
+}
+
+void
 print_val(Value val)
 {
 	switch(val.type) {
@@ -45,6 +57,7 @@ print_val(Value val)
 
 	case VAL_NIL:	printf("nil"); 			break;
 	case VAL_NUMBER:printf("%g", AS_NUMBER(val));	break;
+	case VAL_OBJ:	print_object(val);		break;
 	}
 }
 
@@ -59,6 +72,11 @@ valuesEqual(Value a, Value b)
 		return true;
 	case VAL_NUMBER:
 		return AS_NUMBER(a) == AS_NUMBER(b);
+	case VAL_OBJ:
+		ObjString *a_str = AS_STRING(a);
+		ObjString *b_str = AS_STRING(b);
+		return	a_str->len == b_str->len && 
+			memcmp(a_str->chars, b_str->chars, a_str->len) == 0;
 	}
 	return false;
 }
