@@ -14,7 +14,19 @@ allocateObject(size_t size, ObjType type)
 {
 	Obj* object = (Obj *) reallocate(NULL, 0, size);
 	object->type = type;
+
+	object->next = vm.objects;
+	vm.objects = object;
 	return object;
+}
+
+static ObjString*
+allocateString(char *chars, int len)
+{
+	ObjString* string = ALLOCATE_OBJ(ObjString, OBJ_STRING);
+	string->len = len;
+	string->chars = chars;
+	return string;
 }
 
 ObjString*
@@ -30,13 +42,4 @@ ObjString*
 takeString(char *chars, int len)
 {
 	return allocateString(chars, len);
-}
-
-static ObjString*
-allocateString(char *chars, int len)
-{
-	ObjString* string = ALLOCATE_OBJ(ObjString, OBJ_STRING);
-	string->len = len;
-	string->chars = chars;
-	return string;
 }

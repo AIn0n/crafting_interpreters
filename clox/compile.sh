@@ -1,1 +1,1 @@
-gcc main.c chunk.c compiler.c debug.c memory.c scanner.c value.c vm.c --std=gnu11
+gcc main.c chunk.c compiler.c debug.c memory.c scanner.c value.c vm.c object.c --std=gnu11

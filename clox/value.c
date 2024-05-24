@@ -72,11 +72,12 @@ valuesEqual(Value a, Value b)
 		return true;
 	case VAL_NUMBER:
 		return AS_NUMBER(a) == AS_NUMBER(b);
-	case VAL_OBJ:
+	case VAL_OBJ: {
 		ObjString *a_str = AS_STRING(a);
 		ObjString *b_str = AS_STRING(b);
 		return	a_str->len == b_str->len && 
 			memcmp(a_str->chars, b_str->chars, a_str->len) == 0;
+	}
 	}
 	return false;
 }

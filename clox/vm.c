@@ -21,9 +21,14 @@ void
 initVM() 
 {
 	reset_stack();
+	vm.objects = NULL;
 }
 
-void freeVM() {}
+void
+freeVM()
+{
+	free_objects();
+}
 
 void
 push(Value val)
