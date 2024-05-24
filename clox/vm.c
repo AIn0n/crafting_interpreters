@@ -1,10 +1,13 @@
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "common.h"
 #include "debug.h"
 #include "vm.h"
 #include "compiler.h"
+#include "object.h"
+#include "memory.h"
 
 VM vm;
 
@@ -61,6 +64,22 @@ static bool
 isFalsey(Value value)
 {
 	return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
+}
+
+static void
+concatenate()
+{
+	ObjString *a = AS_STRING(pop());
+	ObjString *b = AS_STRING(pop());
+
+	int len = a->len + b->len;
+	char *chars = ALLOCATE(char, len + 1);
+	memcpy(chars, a->chars, a->len);
+	memcpy(chars + a->len, b->chars, b->len);
+	chars[len] = '\0';
+	
+	ObjString *res = takeString(chars, len);
+	push(OBJ_VAL(res));
 }
 
 static Interpret_res
@@ -124,7 +143,18 @@ run()
 		}
 		case OP_GREATER:	BINARY_OP(BOOL_VAL,	>);	break;
 		case OP_LESS:		BINARY_OP(BOOL_VAL,	<);	break;
-		case OP_ADD:		BINARY_OP(NUMBER_VAL,	+);	break;
+		case OP_ADD:
+			if (IS_STRING(peek(0)) && IS_STRING(peek(1))) {
+				concatenate();
+			} else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
+				double a = AS_NUMBER(pop());
+				double b = AS_NUMBER(pop());
+				push(NUMBER_VAL(a + b));
+			} else {
+				runtime_error("both operands must be the same type.");
+				return INTERPRET_RUNTIME_ERROR;
+			}
+			break;
 		case OP_SUB:		BINARY_OP(NUMBER_VAL,	-);	break;
 		case OP_MUL:		BINARY_OP(NUMBER_VAL,	*);	break;
 		case OP_DIV:		BINARY_OP(NUMBER_VAL,	/);	break;

@@ -26,6 +26,7 @@ struct ObjString {
 };
 
 ObjString* copyString(char *, int);
+ObjString* takeString(char *, int);
 
 static inline bool
 isObjType(Value value, ObjType type)

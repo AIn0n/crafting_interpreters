@@ -26,6 +26,12 @@ copyString(char *chars, int len)
 	return allocateString(heap_chars, len);
 }
 
+ObjString*
+takeString(char *chars, int len)
+{
+	return allocateString(chars, len);
+}
+
 static ObjString*
 allocateString(char *chars, int len)
 {
