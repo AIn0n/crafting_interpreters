@@ -26,8 +26,8 @@ struct ObjString {
     char *chars;
 };
 
-ObjString* copyString(char *chars, int len);
-ObjString* takeString(char *chars, int len);
+ObjString* copyString(char*, int);
+ObjString* takeString(char*, int);
 
 static inline bool
 isObjType(Value value, ObjType type)
@@ -35,9 +35,4 @@ isObjType(Value value, ObjType type)
     return IS_OBJ(value) && AS_OBJ(value)->type == type;
 }
 
-#include <stdlib.h>
-
-void func() {
-    int *a = (int *) malloc(sizeof(*a) * 4);
-}
 #endif
